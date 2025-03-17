@@ -1,11 +1,13 @@
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
+const cookieParser = require('cookie-parser');
 const app = express();
 const PORT = 3000;
 
 app.use(express.json());
-app.use(express.urlencoded());
+app.use(express.urlencoded({extended: false}));
+app.use(cookieParser());
 
 // Router
 const userRoutes = require('./src/routes/user');

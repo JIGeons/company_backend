@@ -7,6 +7,7 @@ const jwt = require('jsonwebtoken');
 // Models
 const User = require('../models/User');
 
+// 관리자 계정 회원가입
 router.post('/signup', async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -34,6 +35,7 @@ router.post('/signup', async (req, res) => {
   }
 });
 
+// 관리자 계정 로그인
 router.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -108,6 +110,58 @@ router.post('/login', async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "서버 오류가 발생했습니다. "});
+  }
+});
+
+// 관리자 계정 로그아웃
+router.post('/logout', async (req, res) => {
+  try {
+    const token = req.cookies.token;
+
+    // 토큰이 존재하지 않는 경우 이미 로그아웃된 계정으로 판단.
+    if (!token) {
+      return res.status(400).json({ message: '이미 로그아웃된 상태입니다. '});
+    }
+
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const user = await User.findById(decoded.userId);
+
+      if (user) {
+        user.isLoggedIn = false;
+        await user.save();
+      }
+    } catch (error) {
+      console.log("토큰 검증 오류: ", error.message);
+      // return res.status(400).json({ message: "토큰 검증 오류" });
+    }
+
+    res.clearCookie('token', {
+      httpOnly: true,
+      secure: 'production',
+      sameSite: 'strict',
+    });
+
+    res.json({ message: "로그아웃 되었습니다."})
+  } catch (error) {
+    console.log("로그아웃 오류: ", error.message);
+    res.status(500).json({ message: "서버 오류가 발생했습니다."});
+  }
+});
+
+// 관계자 계정 삭제
+router.delete('/delete/:userId', async (req, res) => {
+  try {
+    // DB에서 삭제를 하는 것이 아닌 deletedAt 컬럼을 생성하여 비활성화 하도록 수정
+    const user = await User.findByIdAndDelete(req.params.userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "사용자를 찾을 수 없습니다." });
+    }
+
+    return res.status(200).json({ message: "사용자가 성공적으로 삭제되었습니다." });
+  } catch (error) {
+    res.status(500).json({ message: "서버 오류가 발생했습니다." })
   }
 });
 
