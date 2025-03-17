@@ -4,6 +4,14 @@ const mongoose = require('mongoose');
 const app = express();
 const PORT = 3000;
 
+app.use(express.json());
+app.use(express.urlencoded());
+
+// Router
+const userRoutes = require('./src/routes/user');
+
+app.use("/api/auth", userRoutes);
+
 app.get('/', (req, res) => {
   res.send('Hello World!');
 });
