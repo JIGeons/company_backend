@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken');
 
 // Models
 const User = require('../models/User');
+const error = require("jsonwebtoken/lib/JsonWebTokenError");
 
 // 관리자 계정 회원가입
 router.post('/signup', async (req, res) => {
@@ -71,7 +72,7 @@ router.post('/login', async (req, res) => {
       }
 
       await user.save();
-      return res.status(401).json({ message: "비밀번호가 일치하지 않습니다. ", data: { remainingAttempts: 5 - user.failedLoginAttempts } });
+      return res.status(401).json({ message: "비밀번호가 일치하지 않습니다. ", remainingAttempts: 5 - user.failedLoginAttempts });
     }
 
     user.failedLoginAttempts = 0;
@@ -106,7 +107,7 @@ router.post('/login', async (req, res) => {
     const userWithoutPassword = user.toObject();  // mongoDB 객체를 일반 객체로 변환
     delete userWithoutPassword.password;
 
-    return res.status(200).json({ message: "로그인 성공", data: { user : userWithoutPassword } });
+    return res.status(200).json({ message: "로그인 성공", user : userWithoutPassword });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "서버 오류가 발생했습니다. "});
@@ -171,5 +172,22 @@ router.delete('/delete/:userId', async (req, res) => {
     res.status(500).json({ message: "서버 오류가 발생했습니다." })
   }
 });
+
+// 토큰 인증 하기
+router.post("/verify-token", async (req, res) => {
+  const token = req.cookies.token;
+
+  if (!token) {
+    return res.status(400).json({ isValid: false, message: "토큰이 유효하지 않습니다."})
+  }
+
+  // 토큰 유효성 확인
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    return res.status(200).json({ isValid: true, use: decoded }); // 인증된 토큰을 바탕으로 user 필드를 전송
+  } catch (erroor) {
+    return res.status(401).json({ isValid: false, message: "유효하지 않은 토큰입니다." });
+  }
+})
 
 module.exports = router;
