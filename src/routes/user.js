@@ -123,17 +123,18 @@ router.post('/logout', async (req, res) => {
       return res.status(400).json({ message: '이미 로그아웃된 상태입니다. '});
     }
 
+    let user = null;
+
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      const user = await User.findById(decoded.userId);
-
-      if (user) {
-        user.isLoggedIn = false;
-        await user.save();
-      }
+      user = await User.findById(decoded.userId);
     } catch (error) {
       console.log("토큰 검증 오류: ", error.message);
-      // return res.status(400).json({ message: "토큰 검증 오류" });
+    }
+
+    if (user) {
+      user.isLoggedIn = false;
+      await user.save();
     }
 
     res.clearCookie('token', {
@@ -141,6 +142,12 @@ router.post('/logout', async (req, res) => {
       secure: 'production',
       sameSite: 'strict',
     });
+
+    if (!user) {
+      return res.status(401).json({
+        message: "유효하지 않은 토큰입니다. 강제 로그아웃되었습니다."
+      });
+    }
 
     res.json({ message: "로그아웃 되었습니다."})
   } catch (error) {
@@ -152,7 +159,7 @@ router.post('/logout', async (req, res) => {
 // 관계자 계정 삭제
 router.delete('/delete/:userId', async (req, res) => {
   try {
-    // DB에서 삭제를 하는 것이 아닌 deletedAt 컬럼을 생성하여 비활성화 하도록 수정
+    // TODO:: DB에서 삭제를 하는 것이 아닌 deletedAt 컬럼을 생성하여 비활성화 하도록 수정
     const user = await User.findByIdAndDelete(req.params.userId);
 
     if (!user) {
