@@ -70,5 +70,46 @@ router.get("/:id", authenticateToken, async (req, res) => {
   }
 });
 
+/**
+ * 문의 내용 수정
+ */
+router.put("/:id", authenticateToken, async (req, res) => {
+  try {
+    const { status } = req.body;
+
+    const contact = await Contact.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      { new: true }
+    );
+
+    if (!contact) {
+      return res.status(404).json({ message: "문의를 찾을 수 없습니다." });
+    }
+
+    res.json({ message: "문의 상태가 성공적으로 수정되었습니다." , contact });
+  } catch (error) {
+    console.log("### 문의 내용 수정 오류: ", error);
+    res.status(500).json({ message: "서버 에러가 발생했습니다." });
+  }
+});
+
+/**
+ * 문의 내용 삭제
+ */
+router.delete("/:id", authenticateToken, async (req, res) => {
+  try {
+    const contact = await Contact.findByIdAndDelete(req.params.id);
+
+    if (!contact) {
+      return res.status(404).json({ message: "문의를 찾을 수 없습니다." });
+    }
+
+    res.json({ message: "문의 상태가 성공적으로 삭제되었습니다." });
+  } catch (error) {
+    console.log("### 문의 내용 삭제 오류: ", error);
+    res.status(500).json({ message: "서버 에러가 발생했습니다." });
+  }
+})
 
 module.exports = router;
