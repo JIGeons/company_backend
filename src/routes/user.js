@@ -110,7 +110,7 @@ router.post('/login', async (req, res) => {
     return res.status(200).json({ message: "로그인 성공", user : userWithoutPassword });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ message: "서버 오류가 발생했습니다. "});
+    res.status(500).json({ message: "서버 오류가 발생했습니다."});
   }
 });
 
@@ -121,7 +121,7 @@ router.post('/logout', async (req, res) => {
 
     // 토큰이 존재하지 않는 경우 이미 로그아웃된 계정으로 판단.
     if (!token) {
-      return res.status(400).json({ message: '이미 로그아웃된 상태입니다. '});
+      return res.status(400).json({ message: '이미 로그아웃된 상태입니다.'});
     }
 
     let user = null;
