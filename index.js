@@ -17,8 +17,10 @@ app.use(cors({
 
 // Router
 const userRoutes = require('./src/routes/user');
+const contactRoutes = require('./src/routes/contact');
 
 app.use("/api/auth", userRoutes);
+app.use("/api/contact", contactRoutes);
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
