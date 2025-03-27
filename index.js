@@ -19,10 +19,12 @@ app.use(cors({
 const userRoutes = require('./src/routes/user');
 const contactRoutes = require('./src/routes/contact');
 const postRoutes = require('./src/routes/post');
+const uploadRoutes = require('./src/routes/upload');
 
 app.use("/api/auth", userRoutes);
 app.use("/api/contact", contactRoutes);
 app.use("/api/post", postRoutes);
+app.use("/api/upload", uploadRoutes);
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
