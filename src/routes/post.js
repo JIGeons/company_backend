@@ -119,4 +119,49 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+/**
+ * 게시글 수정
+ */
+router.put("/:id", async (req, res) => {
+  try {
+    const { title, content, fileUrl } = req.body;
+
+    const post = await Post.findById(req.params.id);
+    if (!post) {
+      return res.status(404).json({ message: "게시글을 찾을 수 없습니다." });
+    }
+
+    post.title = title;
+    post.content = content;
+    post.fileUrl = fileUrl;
+    post.updatedAt = Date.now();
+
+    await post.save();
+    res.json(post);
+  } catch (error) {
+    console.log("### 게시글 수정 오류: ", error);
+    res.status(500).json({ message: "서버 에러가 발생했습니다." });
+  }
+});
+
+/**
+ * 게시글 삭제
+ */
+router.delete("/:id", async (req, res) => {
+  try {
+    const { title, content, fileUrl } = req.body;
+
+    const post = await Post.findById(req.params.id);
+    if (!post) {
+      return res.status(404).json({ message: "게시글을 찾을 수 없습니다." });
+    }
+
+    await post.deleteOne();
+    res.json({ message: "게시글이 삭제 되었습니다." });
+  } catch (error) {
+    console.log("### 게시글 삭제 오류: ", error);
+    res.status(500).json({ message: "서버 에러가 발생했습니다." });
+  }
+});
+
 module.exports = router;
