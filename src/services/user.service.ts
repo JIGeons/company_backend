@@ -23,21 +23,25 @@ export class UserService {
   public async signup(username: string, password: string): Promise<Result> {
     // User가 존재하는지 확인
     const existingUser = await this.userDao.findByUsername(username);
-    if (existingUser.success) {
-      throw new HttpException(400, "이미 존재하는 사용자입니다.");
-    }
     if (existingUser.error) {
       throw new HttpException(500, existingUser.error);
     }
+    if (existingUser.success) {
+      throw new HttpException(400, "이미 존재하는 사용자입니다.");
+    }
 
-    // 비밀번호 10진수 암호화
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const createUser: CreateUserDto = { username, password: hashedPassword }
+    try {
+      // 비밀번호 10진수 암호화
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const createUser: CreateUserDto = { username, password: hashedPassword }
 
-    // user 정보 생성
-    const createUserResult = await this.userDao.create(createUser);
+      // user 정보 생성
+      const createUserResult = await this.userDao.create(createUser);
 
-    return { success: true , data: createUserResult };
+      return { success: true , data: createUserResult };
+    } catch (error) {
+      throw new HttpException(500, "회원가입에 실패했습니다.");
+    }
   }
 
   public async login(username: string, password: string): Promise<Result> {

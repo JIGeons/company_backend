@@ -18,7 +18,9 @@ export class UserController {
     try {
       const { username, password } = req.body;
 
-      this.userService.signup(username, password);
+      const signupResult = await this.userService.signup(username, password);
+
+      res.status(201).json({ success: true, data: signupResult, message: "회원가입이 완료되었습니다." });
     } catch (error) {
       next(error);
     }
