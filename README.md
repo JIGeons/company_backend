@@ -43,6 +43,5 @@ MongoDB Atlas와 AWS S3를 연동하고, JWT는 **HTTP-only 쿠키 방식**으�
 - 로그인 시 JWT를 발급하여 **HTTP-only 쿠키에 저장**
 - 쿠키 기반 인증 → `Authorization` 헤더 없이 인증 유지
 - 클라이언트에서 JS로 쿠키 접근 불가 → **XSS 방어**
-- 추후 **CSRF 대응 로직** 적용 예정
 
 ---
