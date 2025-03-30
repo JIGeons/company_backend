@@ -49,9 +49,10 @@
 
   /* 컴파일 대상에 포함할 파일 */
   "include": [
-    "src/**/*.ts",    // 모든 TypeScript 소스
-    "src/**/*.ts",    // JSON 파일 import
-    ".env"            // 환경변수 파일 포함
+    "src/**/*.ts",              // 모든 TypeScript 소스
+    "src/types/**/*.d.ts",      // 모든 TypeScript 소스
+    "src/**/*.json",            // JSON 파일 import
+    ".env"                      // 환경변수 파일 포함
   ],
 
   /* 컴파일 제외할 항목 */
