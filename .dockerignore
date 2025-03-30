@@ -1,0 +1,9 @@
+# compiled output
+.idea
+/node_modules
+
+# code formatter
+
+# docker
+Dockerfile
+docker-compose.yml
