@@ -17,7 +17,7 @@ app.use(cors({
 
 // Router
 const userRoutes = require('./src/routes/user');
-const contactRoutes = require('./src/routes/contact');
+const contactRoutes = require('./src/routes/contact.route');
 const postRoutes = require('./src/routes/post');
 const uploadRoutes = require('./src/routes/upload');
 

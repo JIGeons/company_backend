@@ -8,6 +8,7 @@ export const ErrorMiddleware: ErrorRequestHandler = (err: Error, req: Request, r
       res.status(err.status).json({
         success: false,
         message: err.message,
+        error: err.error
       });
       return ;
     }
