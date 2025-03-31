@@ -20,7 +20,7 @@ export class UserController {
 
       const signupResult = await this.userService.signup(username, password);
 
-      res.status(201).json({ success: true, data: signupResult, message: "회원가입이 완료되었습니다." });
+      res.status(201).send({ success: true, data: signupResult, message: "회원가입이 완료되었습니다." });
     } catch (error) {
       next(error);
     }
@@ -52,7 +52,7 @@ export class UserController {
       const userWithoutPassword = loginResult.data.toObject();  // mongoDB 객체를 일반 객체로 변환
       delete userWithoutPassword.password;
 
-      res.status(200).json({ message: "로그인 성공", user : userWithoutPassword });
+      res.status(200).send({ message: "로그인 성공", user : userWithoutPassword });
     } catch (error) {
       next(error);
     }
@@ -76,7 +76,7 @@ export class UserController {
       }
 
       // 로그아웃 성공 시
-      res.json({ success: true, message: "로그아웃 되었습니다." })
+      res.send({ success: true, message: "로그아웃 되었습니다." })
     } catch (error) {
       next(error);
     }
@@ -93,7 +93,7 @@ export class UserController {
         return next(new HttpException(404, deleteResult.error));
       }
 
-      res.status(200).json({ success: true, message: "사용자가 성공적으로 삭제되었습니다." });
+      res.status(200).send({ success: true, message: "사용자가 성공적으로 삭제되었습니다." });
     } catch (error) {
       next(error);
     }
@@ -103,16 +103,16 @@ export class UserController {
     const token = req.cookies.token;
 
     if (!token) {
-      res.status(400).json({ isValid: false, message: "토큰이 유효하지 않습니다."});
+      res.status(400).send({ isValid: false, message: "토큰이 유효하지 않습니다."});
       return ;
     }
 
     // 토큰 유효성 확인
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      res.status(200).json({ isValid: true, user: decoded }); // 인증된 토큰을 바탕으로 user 필드를 전송
+      res.status(200).send({ isValid: true, user: decoded }); // 인증된 토큰을 바탕으로 user 필드를 전송
     } catch (error) {
-      res.status(401).json({ isValid: false, message: "유효하지 않은 토큰입니다." });
+      res.status(401).send({ isValid: false, message: "유효하지 않은 토큰입니다." });
     }
   }
 }
