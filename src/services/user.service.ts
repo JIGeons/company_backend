@@ -16,6 +16,7 @@ import { CreateUserDto, UpdateUserDto } from "@/dtos/user.dto";
 
 @Service()
 export class UserService {
+  // 생성자 주입을 통해 UserDao 의존성 주입
   constructor(
     private readonly userDao : UserDao,
   ) {}

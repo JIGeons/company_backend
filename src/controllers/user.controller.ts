@@ -1,7 +1,7 @@
 /**
  * User Controller
  */
-import {Request, Response, NextFunction, RequestHandler} from "express";
+import { Request, Response, NextFunction } from "express";
 import { Container } from "typedi";
 import { HttpException } from "@exceptions/httpException";
 import jwt from "jsonwebtoken";
