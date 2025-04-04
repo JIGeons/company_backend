@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 
+const { ContactStatusEnum } = require('../../utils/enums');
+
 const contactSchema = new mongoose.Schema(
   {
     name: {
@@ -24,8 +26,8 @@ const contactSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['in progress', 'pending', 'complete'],
-      default: 'in progress',
+      enum: Object.values(ContactStatusEnum),
+      default: ContactStatusEnum.IN_PROGRESS,
     },
     createdAt: {
       type: Date,
