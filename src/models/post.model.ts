@@ -1,6 +1,9 @@
-import mongoose from "mongoose";
+import mongoose, { Model, Schema } from "mongoose";
 
-const postSchema = new mongoose.Schema(
+// Interface
+import { Post } from '@interfaces/post.interface';
+
+const postSchema: Schema<Post> = new Schema(
   {
     number: {
       type: Number,
@@ -45,6 +48,6 @@ const postSchema = new mongoose.Schema(
   }
 );
 
-const Post = mongoose.model("Post", postSchema);
+const Post: Model<Post> = mongoose.model<Post>("Post", postSchema);
 
-module.exports = Post;
+export default Post;

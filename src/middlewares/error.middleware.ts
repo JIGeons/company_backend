@@ -13,6 +13,7 @@ export const ErrorMiddleware: ErrorRequestHandler = (err: Error, req: Request, r
       return ;
     }
 
+    console.log("서버 에러: \n", err);
     res.status(500).json({
       success: false,
       message: '서버 오류',

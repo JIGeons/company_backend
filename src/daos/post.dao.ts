@@ -2,7 +2,7 @@
  * Post Dao
  */
 import { Service } from "typedi";
-import Post from "@models/Post";
+import Post from "@models/post.model";
 
 // Dto
 import { CreatePostDto, UpdatePostDto } from "@/dtos/post.dto";

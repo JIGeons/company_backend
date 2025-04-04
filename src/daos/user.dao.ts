@@ -1,5 +1,5 @@
 import { Service } from "typedi";
-import User from "@models/User";
+import User from "@models/user.model";
 
 // Interface
 import { Result } from '@interfaces/result.interface';
