@@ -8,14 +8,10 @@ import { fromEnv } from "@aws-sdk/credential-provider-env";
 import { Result } from "@interfaces/result.interface";
 
 export function getS3Client () {
-  try {
-    return new S3Client({
+  return new S3Client({
       region: process.env.AWS_REGION,
       credentials: fromEnv(),
-    });
-  } catch {
-    return null;
-  }
+  });
 }
 
 // 파일 업로드 메소드

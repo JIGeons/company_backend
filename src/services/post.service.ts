@@ -1,15 +1,18 @@
 /**
  * Post Service
  */
-import { Service } from "typedi";
+import { Service, Inject } from "typedi";
 import { plainToInstance } from "class-transformer";
 import { validate } from "class-validator";
 import { marked } from "marked";
-import { DeleteObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { HttpException } from "@exceptions/httpException";
 
 // Interface
 import { Result } from "@interfaces/result.interface";
-import { HttpException } from "@exceptions/httpException";
+import { FileStorageServiceInterface } from "@interfaces/file.interface";
+
+// Service
+import { S3FileStorageService } from "@services/file.service";
 
 // Dao
 import { PostDao } from "@/daos/post.dao";
@@ -22,20 +25,13 @@ import { getClientIp } from "@utils/getClientIp";
 
 @Service()
 export class PostService {
-  private s3Client: S3Client;
-
   constructor(
-    private readonly postDao: PostDao
-  ) {
-    // 파일 업로드할 때 사용되는 사용자 정보로 s3 객체 생성
-    this.s3Client = new S3Client({
-      region: process.env.AWS_REGION,
-      credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-      }
-    });
-  }
+    private readonly postDao: PostDao,
+
+    // 인터페이스 기반 의존성 주입 (구현체: S3FileStorageService)
+    @Inject(() => S3FileStorageService)
+    private readonly s3FileStorageService: FileStorageServiceInterface
+  ) {}
 
   public async findAll(): Promise<Result> {
     const { success, data: postsResult, error } = await this.postDao.findAll();
@@ -155,35 +151,9 @@ export class PostService {
       (url: string) => !(fileUrl ?? []).includes(url)
     );
 
-    // AWS S3 객체 불러옴.
-    const getS3KeyFromUrl = (url: string) => {
-      try {
-        const urlObj = new URL(url);  // 파라미터로 받은 url은 url객체로 생성
-        return decodeURIComponent(urlObj.pathname.substring(1));  // urlObj의 pathname에서 앞에 /를 제거하고 디코딩을 하여 원래의 문자열로 반환
-      } catch (error) {
-        console.log("### URL 파싱 에러: ", error);
-        return null;
-      }
-    }
-
     // AWS S3 파일 삭제
     const allDeletedFiles = [...deletedImages, ...deletedFiles];
-    for(const fileUrl of allDeletedFiles) {
-      const key = getS3KeyFromUrl(fileUrl);
-      if (key) {
-        try {
-          await this.s3Client.send(new DeleteObjectCommand({
-            Bucket: process.env.AWS_BUCKET_NAME,
-            Key: key,
-          }));
-
-          console.log("파일 삭제 완료: ", key);
-        } catch (error) {
-          console.log("s3 파일 삭제 에러: ", error);
-        }
-      }
-    }
-
+    await this.s3FileStorageService.deleteFiles(allDeletedFiles);
 
     const updatePostDto = plainToInstance(UpdatePostDto, {
       id: String(postData._id),  // mongoose 객체 id타입을 string 형으로 변환.
@@ -223,33 +193,9 @@ export class PostService {
     const imgRegex = /https:\/\/[^"']*?\.(?:png|jpg|jpeg|gif|PNG|JPG|JPEG|GIF)/g;
     const contentImages = postData.content.match(imgRegex) || [];
 
-    const getS3KeyFromUrl = (url: string) => {
-      try {
-        const urlObj = new URL(url);  // 파라미터로 받은 url은 url객체로 생성
-        return decodeURIComponent(urlObj.pathname.substring(1));  // urlObj의 pathname에서 앞에 /를 제거하고 디코딩을 하여 원래의 문자열로 반환
-      } catch (error) {
-        console.log("### URL 파싱 에러: ", error);
-        return null;
-      }
-    }
-
+    // AWS S3 삭제 파일
     const allFiles: any[] = [...contentImages, ...(postData.fileUrl || [])];
-
-    for(const fileUrl of allFiles) {
-      const key = getS3KeyFromUrl(fileUrl);
-      if (key) {
-        console.log("삭제할 파일 키: ", key);
-
-        try {
-          await this.s3Client.send(new DeleteObjectCommand({
-            Bucket: process.env.AWS_BUCKET_NAME,
-            Key: key,
-          }));
-        } catch (error) {
-          console.log("s3 파일 삭제 에러: ", error);
-        }
-      }
-    }
+    await this.s3FileStorageService.deleteFiles(allFiles);
 
     const { success, data: deletePostResult, error } = await this.postDao.deletePost(String(postData._id));
     if (error) {
