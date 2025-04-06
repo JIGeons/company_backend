@@ -1,20 +1,29 @@
 /**
  * 파일/S3 관련 로직 분리
  */
-import { Service } from "typedi";
-import { DeleteObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import {Service} from "typedi";
+import {Express} from "express";
+import {DeleteObjectCommand, PutObjectCommand, PutObjectCommandInput, S3Client} from "@aws-sdk/client-s3";
+import {fromEnv} from "@aws-sdk/credential-provider-env";
 
 // Interface
-import { FileStorageServiceInterface } from "@interfaces/file.interface";
+import {FileStorageServiceInterface} from "@interfaces/file.interface";
+import {Result} from "@interfaces/result.interface";
+
+type ReqFile = Express.Multer.File; // File 타입 별칭 지정
 
 // Utils
-import { getS3Client } from "@utils/aws.util";
+import {FileTypeEnum} from "@utils/enum";
+
 
 @Service()
 export class S3FileStorageService implements FileStorageServiceInterface {
   private readonly s3Client: S3Client;
   constructor() {
-    this.s3Client = getS3Client();
+    this.s3Client = new S3Client({
+      region: process.env.AWS_REGION,
+      credentials: fromEnv(),
+    })
   }
 
   private getS3KeyFromUrl(url: string): string | null {
@@ -48,6 +57,50 @@ export class S3FileStorageService implements FileStorageServiceInterface {
   async deleteFiles(urls: string[]): Promise<void> {
     for (const url of urls) {
       await this.deleteFile(url);
+    }
+  }
+
+  // S3 이미지 업로드
+  async uploadImage(file: ReqFile, fileName: string): Promise<Result> {
+    // S3에 Upload할 이미지 객체 생성
+    const command = new PutObjectCommand({
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: `post-images/${fileName}`,
+      Body: file.buffer,
+      ContentType: file.mimetype,
+    });
+
+    try {
+      // AWS S3에 이미지 업로드
+      await this.s3Client.send(command);
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: "AWS S3 이미지 업로드 중 오류가 발생했습니다." };
+    }
+  }
+
+  // S3 이미지/파일 업로드
+  async uploadFile(file: ReqFile, fileName: string, type: FileTypeEnum): Promise<Result> {
+    // S3에 Upload할 파일 객체 생성
+    const command: PutObjectCommandInput = {
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: `post-images/${fileName}`,
+      Body: file.buffer,
+      ContentType: file.mimetype,
+    }
+
+    // type이 파일인 경우 Key 수정, ContentDisposition 속성 추가
+    if (type === FileTypeEnum.FILE) {
+      command.Key = `post-files/${fileName}`;
+      command.ContentDisposition = `attachment; filename*=UTF-8''${encodeURIComponent(fileName)}`;
+    }
+
+    try {
+      // AWS S3에 이미지 업로드
+      await this.s3Client.send(new PutObjectCommand(command));
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: "AWS S3 이미지/파일 업로드 중 오류가 발생했습니다." };
     }
   }
 }

@@ -1,6 +1,10 @@
 const mongoose = require('mongoose');
 
-const { ContactStatusEnum } = require('../../utils/enums');
+const ContactStatusEnum = {
+  IN_PROGRESS : "IN_PROGRESS",
+  PENDING : "PENDING",
+  COMPLETED :  "COMPLETED",
+}
 
 const contactSchema = new mongoose.Schema(
   {
