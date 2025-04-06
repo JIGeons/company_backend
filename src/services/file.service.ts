@@ -60,25 +60,6 @@ export class S3FileStorageService implements FileStorageServiceInterface {
     }
   }
 
-  // S3 이미지 업로드
-  async uploadImage(file: ReqFile, fileName: string): Promise<Result> {
-    // S3에 Upload할 이미지 객체 생성
-    const command = new PutObjectCommand({
-      Bucket: process.env.AWS_BUCKET_NAME,
-      Key: `post-images/${fileName}`,
-      Body: file.buffer,
-      ContentType: file.mimetype,
-    });
-
-    try {
-      // AWS S3에 이미지 업로드
-      await this.s3Client.send(command);
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: "AWS S3 이미지 업로드 중 오류가 발생했습니다." };
-    }
-  }
-
   // S3 이미지/파일 업로드
   async uploadFile(file: ReqFile, fileName: string, type: FileTypeEnum): Promise<Result> {
     // S3에 Upload할 파일 객체 생성
