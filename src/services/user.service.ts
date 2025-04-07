@@ -39,7 +39,7 @@ export class UserService {
       // user 정보 생성
       const createUserResult = await this.userDao.create(createUser);
 
-      return { success: true , data: createUserResult };
+      return { success: true , data: createUserResult.data };
     } catch (error) {
       throw new HttpException(500, "회원가입에 실패했습니다.");
     }
@@ -118,7 +118,7 @@ export class UserService {
       throw new HttpException(500, updateUserResult.error);
     }
 
-    return { success: true, data: updateUserResult };
+    return { success: true, data: updateUserResult.data };
   }
 
   public async deleteUser (userId: string): Promise<Result> {

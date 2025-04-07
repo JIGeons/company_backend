@@ -1,5 +1,5 @@
 import {Request, Response, NextFunction, RequestHandler} from "express";
-import jwt from 'jsonwebtoken';
+import jwt, { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
 
 // ENV
 import { JWT_SECRET } from "@/config";
@@ -25,6 +25,14 @@ export const AuthMiddleware: RequestHandler = async (req: Request, res: Response
     req.user = decoded as AuthUser;
     next();
   } catch (error) {
+    if (error instanceof TokenExpiredError) {
+      console.log('auth TokenExpiredError');
+    } else if (error instanceof JsonWebTokenError) {
+      console.log('JsonWebTokenError');
+    } else if (error instanceof Error) {
+      console.log("기타 Error: ", error.message);
+    }
+
     return next(new HttpException(403, "유효하지 않은 토큰입니다."));
   }
 };
