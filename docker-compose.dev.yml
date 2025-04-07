@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  app:
+    container_name: abc-company-server
+    build: .
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mongo
+      - redis
+    env_file:
+      - .env.dev  # .env.dev의 환경변수를 도커 컨테이너로 주입
+    restart: always
+
+  mongo:
+    container_name: mongo-db
+    image: mongo:6.0
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    restart: always
+
+  redis:
+    container_name: abc-redis-server
+    image: redis      # Redis 공식 이미지 사용
+    ports:
+      - "6379:6379"   # 호스트 포트: 컨테이너 포트 매핑 (Redis 기본 포트)
+    volumes:
+      - redis_data:/data      # Redis 데이터 파일을 로컬 볼륨에 저장 (데이터 유지)
+    restart: unless-stopped   # 컨테이너가 꺼지면 자동 재시작 (수동으로 중지하지 않는 한)
+
+volumes:
+  mongo_data:
+  redis_data:   # 위에서 지정한 redis-data 볼륨 이름. 실제로는 Docker가 내부적으로 저장 위치를 관리함
