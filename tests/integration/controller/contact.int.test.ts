@@ -37,6 +37,7 @@ describe('Contact 통합 테스트', () => {
 
     // 테스트용 JWT 발급
     const payload = { userId: 'testId', username: 'test@test.com' };
+    // @ts-ignore
     jwtToken = jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' });
   });
 
