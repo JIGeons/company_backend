@@ -20,6 +20,7 @@ module.exports = {
   collectCoverage: true,
   coverageDirectory: "coverage/",
 
+  // Jest가 모듈을 찾을 때 참조할 디렉토리들
   moduleDirectories: ['node_modules', 'src'],
   moduleNameMapper: {
     "^@/(.*)$": '<rootDir>/src/$1', // @/로 시작하는 import를 src 디렉토리로 매핑
@@ -27,9 +28,10 @@ module.exports = {
     "^@exceptions/(.*)$": "<rootDir>/src/exceptions/$1",
     "^@interfaces/(.*)$": "<rootDir>/src/interfaces/$1",
     "^@services/(.*)$": "<rootDir>/src/services/$1",
-    "^@models/(.*)$": "<rootDir>/src/models/$1",
-    "^@tests/(.*)$": "<rootDir>/tests/$1",
-    "^@utils/(.*)$": "<rootDir>/src/utils/$1",
+    "^@middlewares/(.*)$": "<rootDir>/src/middlewares/$1",
     "^@config/(.*)$": "<rootDir>/src/config/$1",
+    "^@models/(.*)$": "<rootDir>/src/models/$1",
+    "^@utils/(.*)$": "<rootDir>/src/utils/$1",
+    "^@tests/(.*)$": "<rootDir>/tests/$1",
   }
 };

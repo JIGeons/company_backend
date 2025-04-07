@@ -39,6 +39,7 @@
       "@exceptions/*": ["src/exceptions/*"],
       "@interfaces/*": ["src/interfaces/*"],
       "@middlewares/*": ["src/middlewares/*"],
+      "@config/*": ["src/config/*"],
       "@models/*": ["src/models/*"],
       "@routes/*": ["src/routes/*"],
       "@services/*": ["src/services/*"],
