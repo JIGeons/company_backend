@@ -4,7 +4,9 @@
   "scripts": {
     "dev": "nodemon index.js",
     "local": "ts-node -r tsconfig-paths/register --transpile-only src/server.ts",
-    "test": "jest"
+    "test": "jest",
+    "test:unit": "jest tests/unit",
+    "test:recent": "jest --onlyChanged"
   },
   "keywords": [],
   "author": "",
