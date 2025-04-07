@@ -15,6 +15,9 @@ pids
 node_modules/
 jspm_packages/
 
+# text result directory
+coverage/
+
 # Environment files
 .env
 

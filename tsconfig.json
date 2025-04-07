@@ -32,17 +32,18 @@
     /* 디렉토리/출력 관련 */
     "rootDir": "src",         // 컴파일할 소스의 루트 디렉토리
     "outDir": "dist",         // 컴파일 결과물 출력 위치
-    "baseUrl": "src",         // 절대 경로 import 시 기준 경로
+    "baseUrl": ".",         // 절대 경로 import 시 기준 경로
     "paths": {                // 경로 별칭 설정 (@/components/..., @services/... 등)
-      "@/*": ["*"],
-      "@controllers/*": ["controllers/*"],
-      "@exceptions/*": ["exceptions/*"],
-      "@interfaces/*": ["interfaces/*"],
-      "@middlewares/*": ["middlewares/*"],
-      "@models/*": ["models/*"],
-      "@routes/*": ["routes/*"],
-      "@services/*": ["services/*"],
-      "@utils/*": ["utils/*"],
+      "@/*": ["src/*"],
+      "@controllers/*": ["src/controllers/*"],
+      "@exceptions/*": ["src/exceptions/*"],
+      "@interfaces/*": ["src/interfaces/*"],
+      "@middlewares/*": ["src/middlewares/*"],
+      "@models/*": ["src/models/*"],
+      "@routes/*": ["src/routes/*"],
+      "@services/*": ["src/services/*"],
+      "@utils/*": ["src/utils/*"],
+      "@tests/*": ["tests/*"],
       "http": ["./node_modules/http"]
     }
   },
