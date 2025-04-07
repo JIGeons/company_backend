@@ -6,6 +6,9 @@ import { Service } from "typedi";
 import { v4 as uuidv } from "uuid";
 import { HttpException } from "@exceptions/httpException";
 
+// ENV
+import { AWS_BUCKET_NAME, AWS_REGION } from "@/config";
+
 // Interface
 import { Result } from "@interfaces/result.interface";
 type ReqFile = Express.Multer.File; // File 타입 별칭 지정
@@ -33,7 +36,7 @@ export class UploadService {
       throw new HttpException(500, uploadResult.error);
     }
 
-    const imageUrl = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/post-images/${fileName}`;
+    const imageUrl = `https://${AWS_BUCKET_NAME}.s3.${AWS_REGION}.amazonaws.com/post-images/${fileName}`;
     return { success: true, data: { imageUrl: imageUrl } };
   }
 
@@ -47,7 +50,7 @@ export class UploadService {
       throw new HttpException(500, uploadResult.error);
     }
 
-    const fileUrl = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/post-files/${decodedFileName}`;
+    const fileUrl = `https://${AWS_BUCKET_NAME}.s3.${AWS_REGION}.amazonaws.com/post-files/${decodedFileName}`;
     return { success: true, data: { imageUrl: fileUrl } };
   }
 }

@@ -6,10 +6,14 @@ import { Container } from "typedi";
 import { HttpException } from "@exceptions/httpException";
 import jwt from "jsonwebtoken";
 
+// ENV
+import { NODE_ENV, JWT_SECRET } from "@/config";
+
+// Interface
+import { AuthUser } from "@interfaces/user.interface";
+
 // Service
 import { UserService } from '@services/user.service';
-import {AuthUser} from "@interfaces/user.interface";
-import * as process from "node:process";
 
 export class UserController {
   private userService = Container.get(UserService);
@@ -38,13 +42,13 @@ export class UserController {
       // JWT 토큰 발급
       const token = jwt.sign(
         { userId: loginResult.data._id, username: loginResult.data.username },
-        process.env.JWT_SECRET,
+        JWT_SECRET,
         { expiresIn: '24h' }  // 토큰 유효기간 설정
       )
 
       res.cookie('token', token, {
         httpOnly: true,               // 클라이언트(JavaScript)에서 해당 쿠키에 접근 할 수 없도록 설정
-        secure: process.env.NODE_ENV === 'production',         // Https 연결에서만 쿠키를 전송하도록 설정 (서버가 운영환경에서만 Secure 옵션 활성화)
+        secure: NODE_ENV === 'prod',         // Https 연결에서만 쿠키를 전송하도록 설정 (서버가 운영환경에서만 Secure 옵션 활성화)
         sameSite: 'strict',           // 외부 사이트에서의 요청에 대해 쿠키를 전송하지 않도록 설정
         maxAge: 24 * 60 * 60 * 1000   // 쿠키의 만료 시간 설정
       });
@@ -65,7 +69,7 @@ export class UserController {
       // 쿠키 초기화
       res.clearCookie('token', {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
+        secure: NODE_ENV === 'production',
         sameSite: 'strict',
       });
 
@@ -109,7 +113,7 @@ export class UserController {
 
     // 토큰 유효성 확인
     try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const decoded = jwt.verify(token, JWT_SECRET);
       res.status(200).json({ isValid: true, user: decoded }); // 인증된 토큰을 바탕으로 user 필드를 전송
     } catch (error) {
       res.status(401).json({ isValid: false, message: "유효하지 않은 토큰입니다." });

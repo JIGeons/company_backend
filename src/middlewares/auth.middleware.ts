@@ -1,6 +1,9 @@
 import {Request, Response, NextFunction, RequestHandler} from "express";
 import jwt from 'jsonwebtoken';
 
+// ENV
+import { JWT_SECRET } from "@/config";
+
 // Interface
 import { AuthUser } from '@interfaces/user.interface';
 
@@ -18,7 +21,7 @@ export const AuthMiddleware: RequestHandler = async (req: Request, res: Response
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, JWT_SECRET);
     req.user = decoded as AuthUser;
     next();
   } catch (error) {

@@ -1,0 +1,6 @@
+{
+  "watch": ["src", ".env", "dist"],
+  "ext": "js,ts,json",
+  "ignore": ["tests/__mock__/*", "tests/factory/*", "tests/fixtures/*", "tests/integration/**/**.*.test.ts", "tests/unit/**/**.*.test.ts"],
+  "exec": "ts-node -r tsconfig-paths/register --transpile-only src/server.ts"
+}

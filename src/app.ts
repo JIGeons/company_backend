@@ -4,9 +4,8 @@ import mongoose from "mongoose";
 
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import dotenv from "dotenv";
 import { ErrorMiddleware } from "@middlewares/error.middleware";
-dotenv.config();
+import { PORT, MONGO_URI } from "@/config";
 
 // Interface
 import { Routes } from "@interfaces/routes.interface";
@@ -17,7 +16,7 @@ export class App {
 
   public constructor(routes: Routes[]) {
     this.app = express();
-    this.port = 3000;
+    this.port = PORT || 3000;
 
     this.connectToDatabase();
     this.initializeMiddlewares();
@@ -35,7 +34,7 @@ export class App {
 
   // 데이터베이스 연결
   private async connectToDatabase() {
-    mongoose.connect(process.env.MONGO_URI)
+    mongoose.connect(MONGO_URI)
       .then(() => { console.log("Mongo DB 연결 성공.")})
       .catch((error) => { console.error('Mongo DB 연결 실패( error: ', error, ' )') });
   }

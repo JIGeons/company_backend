@@ -12,8 +12,11 @@ import {Result} from "@interfaces/result.interface";
 
 type ReqFile = Express.Multer.File; // File 타입 별칭 지정
 
+// ENV
+import { AWS_BUCKET_NAME, AWS_REGION } from "@/config";
+
 // Utils
-import {FileTypeEnum} from "@utils/enum";
+import { FileTypeEnum } from "@utils/enum";
 
 
 @Service()
@@ -21,7 +24,7 @@ export class S3FileStorageService implements FileStorageServiceInterface {
   private readonly s3Client: S3Client;
   constructor() {
     this.s3Client = new S3Client({
-      region: process.env.AWS_REGION,
+      region: AWS_REGION,
       credentials: fromEnv(),
     })
   }
@@ -44,7 +47,7 @@ export class S3FileStorageService implements FileStorageServiceInterface {
 
     try {
       await this.s3Client.send(new DeleteObjectCommand({
-        Bucket: process.env.AWS_BUCKET_NAME,
+        Bucket: AWS_BUCKET_NAME,
         Key: key,
       }));
       console.log(`[S3] 파일 삭제 완료: ${key}`);
@@ -64,7 +67,7 @@ export class S3FileStorageService implements FileStorageServiceInterface {
   async uploadFile(file: ReqFile, fileName: string, type: FileTypeEnum): Promise<Result> {
     // S3에 Upload할 파일 객체 생성
     const command: PutObjectCommandInput = {
-      Bucket: process.env.AWS_BUCKET_NAME,
+      Bucket: AWS_BUCKET_NAME,
       Key: `post-images/${fileName}`,
       Body: file.buffer,
       ContentType: file.mimetype,
