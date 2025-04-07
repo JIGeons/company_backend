@@ -1,0 +1,26 @@
+# docker-compose.test.yml 테스트 환경용 Docker Compose 설정 파일
+version: '3.8'  # 사용할 Docker Compose 파일 버전
+
+services:
+  mongo-test:   # 서비스 이름 (로컬에서 이 이름으로 참조 가능)
+    container_name: abc-mongo-test  # 생성될 컨테이너 이름
+    image: mongo:6  # 사용할 MongoDB 이미지 (버전 6 사용)
+    ports:
+      - "27018:27017"   # 호스트: 컨테이너 포트 매핑 (localhost:27018 -> 컨테이너 내부 27017)
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: test  # 루트 사용자 이름 (MongoDB 최초 실행 시 생성)
+      MONGO_INITDB_ROOT_PASSWORD: 1234! # 루트 사용자 비밀번호
+      MONGO_INITDB_DATABASE: testdb     # 초기 생성할 데이터베이스 이름
+    volumes:
+      - mongo-test-data:/data/db        # 데이터 영속화를 위한 볼륨 마운트 (컨테이너가 재시작돼도 데이터 유지)
+    networks:
+      - testnet   # 정의된 사용자 정의 네트워크 연결
+
+# 볼륨 정의 (데이터 파일이 이 로컬 볼륨에 저장됨)
+volumes:
+  mongo-test-data:
+
+
+# 사용자 정의 네트워크 정의 (서비스 간 통신을 위한 가상 네트워크)
+networks:
+  testnet:
