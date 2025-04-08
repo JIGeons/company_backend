@@ -16,7 +16,7 @@
     "docker:dev:up": "docker-compose -f docker-compose.dev.yml up -d",
     "docker:dev:down": "docker-compose -f docker-compose.dev.yml down -v",
     "build": "rm -rf dist && tsc",
-    "build:prod": "cross-env NODE_ENV=release npx webpack --config webpack.prod.config.js"
+    "build:prod": "cross-env NODE_ENV=prod npx webpack --config webpack.prod.config.js"
   },
   "keywords": [],
   "author": "",
