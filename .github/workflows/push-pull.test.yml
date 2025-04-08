@@ -1,0 +1,45 @@
+# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
+
+name: Node.js CI
+
+on:
+  # develop 브랜치에 push, pull 이벤트 발생 시 jobs 실행
+  push:
+    branches: [ "develop" ]
+    # Update 시 test를 실행시킬 항목들
+    paths:
+      - '**/*.ts'
+      - 'src/**'
+      - 'test/**'
+  pull_request:
+    branches: [ "develop" ]
+    # Update 시 test를 실행시킬 항목들
+    paths:
+      - '**/*.ts'
+      - 'src/**'
+      - 'test/**'
+
+jobs:
+  # build 라는 작업 정의
+  build:
+    # build 작업을 실행할 가상 머신 환경 지정
+    runs-on: ubuntu-latest
+    # 버전 매트릭스 전력
+    strategy:
+      matrix:
+        # Node.js 18.x, 20.x, 22.x 버전 각각 테스트 실행
+        node-version: [18.x, 20.x, 22.x]
+
+    # 실행할 단계들, 각 단계는 순서대로 실행
+    steps:
+    - uses: actions/checkout@v4    # 현재 저장소의 코드를 가져오기 (Actions가 내 코드를 사용할 수 있도록 하는 필수 단계)
+    # actions/setup-node 라는 공식 액션을 사용해서, 18 ~ 22 버전 중 현재 버전으로 Node 설정
+    - name: Use Node.js ${{ matrix.node-version }}   
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'    # npm 의존성 캐싱 활성화 -> 빌드 속도 향상
+    - run: npm ci                        # package-lock.json 기반으로 의존성 설치
+    - run: npm run build --if-present    # build 스크립트가 존재 시 실행
+    - run: npm test                      # 작성해둔 테스트 코드 실행

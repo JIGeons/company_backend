@@ -4,6 +4,7 @@
   "scripts": {
     "dev": "nodemon index.js",
     "local": "ts-node -r tsconfig-paths/register --transpile-only src/server.ts",
+    "start": "node -r tsconfig-paths/register dist/src/server.js",
     "start:local": "cross-env NODE_ENV=dev nodemon",
     "start:test": "cross-env NODE_ENV=test nodemon",
     "start:prod": "cross-env NODE_ENV=prod nodemon",
@@ -14,7 +15,11 @@
     "docker:test:up": "docker-compose -f docker-compose.test.yml up -d",
     "docker:test:down": "docker-compose -f docker-compose.test.yml down -v",
     "docker:dev:up": "docker-compose -f docker-compose.dev.yml up -d",
-    "docker:dev:down": "docker-compose -f docker-compose.dev.yml down -v"
+    "docker:dev:down": "docker-compose -f docker-compose.dev.yml down -v",
+    "docker:prod:up": "docker-compose -f docker-compose.yml --env-file .env.prod up -d",
+    "docker:prod:down": "docker-compose -f docker-compose.yml down -v",
+    "build": "rm -rf dist && tsc -p . && tsc-alias",
+    "build:prod": "rm -rf dist && tsc -p . && tsc-alias"
   },
   "keywords": [],
   "author": "",
@@ -39,10 +44,12 @@
     "nodemon": "^3.1.9",
     "redis": "^4.7.0",
     "reflect-metadata": "^0.2.2",
+    "ts-loader": "^9.5.2",
     "ts-node": "^10.9.2",
     "typedi": "^0.10.0",
     "typescript": "^5.8.2",
-    "uuid": "^11.1.0"
+    "uuid": "^11.1.0",
+    "webpack-node-externals": "^3.0.0"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
@@ -51,11 +58,15 @@
     "@types/express": "^5.0.1",
     "@types/jest": "^29.5.14",
     "@types/jsonwebtoken": "^9.0.9",
+    "@types/module-alias": "^2.0.4",
     "@types/multer": "^1.4.12",
     "@types/supertest": "^6.0.3",
     "jest": "^29.7.0",
+    "module-alias": "^2.2.3",
     "supertest": "^7.1.0",
     "ts-jest": "^29.3.1",
-    "tsconfig-paths": "^4.2.0"
+    "tsc-alias": "^1.8.13",
+    "tsconfig-paths": "^4.2.0",
+    "webpack-cli": "^6.0.1"
   }
 }

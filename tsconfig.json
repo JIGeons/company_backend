@@ -5,7 +5,8 @@
     "moduleResolution": "node",     // 모듈 경로 해석 방식 설정 (Node 방식으로 해석)
     "target": "es6",                // 변환할 JavaScript 버전
     "typeRoots": [                  // 타입 정의 파일 위치
-      "node_modules/@types"
+      "node_modules/@types",
+      "@types"
     ],
 
     /* CommonJS 모듈을 import 형태로 쓰기 쉽게 도와주는 설정 */
@@ -31,8 +32,7 @@
 
     /* 디렉토리/출력 관련 */
     "rootDir": ".",         // 컴파일할 소스의 루트 디렉토리
-    "outDir": "dist",         // 컴파일 결과물 출력 위치
-    "baseUrl": ".",         // 절대 경로 import 시 기준 경로
+    "baseUrl": "./",         // 절대 경로 import 시 기준 경로
     "paths": {                // 경로 별칭 설정 (@/components/..., @services/... 등)
       "@/*": ["src/*"],
       "@controllers/*": ["src/controllers/*"],
@@ -46,11 +46,13 @@
       "@utils/*": ["src/utils/*"],
       "@tests/*": ["tests/*"],
       "http": ["./node_modules/http"]
-    }
+    },
+    "outDir": "dist",         // 컴파일 결과물 출력 위치
   },
 
   /* 컴파일 대상에 포함할 파일 */
   "include": [
+    "src",
     "src/**/*.ts",              // 모든 TypeScript 소스
     "src/types/**/*.d.ts",      // 모든 TypeScript 소스
     "src/**/*.json",            // JSON 파일 import

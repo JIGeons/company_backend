@@ -1,9 +1,19 @@
 # compiled output
 .idea
-/node_modules
+node_modules
+/tests
+/coverage
+.viminfo
 
 # code formatter
 
 # docker
 Dockerfile
-docker-compose.yml
+docker-compose.dev.yml
+docker-compose.test.yml
+
+# 환경변수 제외
+.env
+.env.dev
+.env.prod
+.env.test
