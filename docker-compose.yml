@@ -5,9 +5,9 @@ services:
     image: nginx:latest
     container_name: nginx-proxy
     volumes:
-      - ./nginx/conf.d:/etc/nginx/conf.d
-      - ./certs:/etc/letsencrypt
-      - ./logs:/var/log/nginx
+      - ./volumes/nginx/conf.d:/etc/nginx/conf.d
+      - ./volumes/certs:/etc/letsencrypt
+      - ./volumes/logs:/var/log/nginx
     ports:
       - "80:80"
       - "443:443"

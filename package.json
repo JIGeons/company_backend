@@ -19,8 +19,7 @@
     "docker:prod:up": "docker-compose -f docker-compose.yml --env-file .env.prod up -d",
     "docker:prod:down": "docker-compose -f docker-compose.yml down -v",
     "build": "rm -rf dist && tsc -p . && tsc-alias",
-    "build:prod": "rm -rf dist && tsc -p . && tsc-alias",
-    "build:production": "cross-env NODE_ENV=prod npx webpack --config webpack.prod.config.js"
+    "build:prod": "rm -rf dist && tsc -p . && tsc-alias"
   },
   "keywords": [],
   "author": "",
