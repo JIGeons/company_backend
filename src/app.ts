@@ -6,10 +6,11 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import { ErrorMiddleware } from "@middlewares/error.middleware";
 import { PORT, MONGO_URI } from "@/config";
+import { initializeRedis } from "@config/redis";
+import { healthCheck } from "@utils/healthCheck";
 
 // Interface
 import { Routes } from "@interfaces/routes.interface";
-import {initializeRedis} from "@config/redis";
 
 export class App {
   public app: express.Application;
@@ -22,6 +23,7 @@ export class App {
 
     this.connectToDatabase();
     this.initializeRedisEvents();
+    this.initializeHealthCheck();
     this.initializeMiddlewares();
     this.initializeRoutes(routes);
     this.initializeErrorHandling();
@@ -64,6 +66,11 @@ export class App {
       origin: 'http://localhost:5173', // frontURL 주소 cors 허용
       credentials: true,  // 쿠키 허용
     }));
+  }
+
+  private initializeHealthCheck() {
+    // @ts-ignore
+    this.app.get("/health", healthCheck);
   }
 
   private initializeRoutes(routes: Routes[]) {

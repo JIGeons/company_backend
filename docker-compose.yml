@@ -31,7 +31,8 @@ services:
     restart: no
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:3000/health" ]
-      interval: 30s
+      interval: 30s       # 체크 간격
+      start_period: 30s   # 초기 대기 시간 추가
       timeout: 5s
       retries: 3
 
@@ -42,14 +43,15 @@ services:
       - "27017:27017"
     environment:
       MONGO_INITDB_ROOT_USERNAME: abc-admin        # 루트 사용자 이름 (MongoDB 최초 실행 시 생성)
-      MONGO_INITDB_ROOT_PASSWORD: abc1234    # 루트 사용자 비밀번호
-      MONGO_INITDB_DATABASE: abc-company              # 초기 생성할 데이터베이스 이름
+      MONGO_INITDB_ROOT_PASSWORD: abc1234          # 루트 사용자 비밀번호
+      MONGO_INITDB_DATABASE: abc-company           # 초기 생성할 데이터베이스 이름
     volumes:
       - mongo-data:/data/db
     restart: always
     healthcheck:
       test: [ "CMD", "mongo", "--eval", "db.adminCommand('ping')" ]
-      interval: 10s
+      interval: 10s       # 체크 간격
+      start_period: 30s   # 초기 대기 시간 추가
       timeout: 5s
       retries: 5
 
