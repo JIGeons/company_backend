@@ -9,15 +9,15 @@ MongoDB Atlas와 AWS S3를 연동하고, JWT는 **HTTP-only 쿠키 방식**으�
 
 ## 🛠️ 사용 기술 (Tech Stack)
 
-- **Language**: JavaScript (ES6+)
-- **Runtime**: Node.js
-- **Framework**: Express.js
-- **Database**: MongoDB (MongoDB Atlas)
-- **ODM**: Mongoose
-- **Authentication**: JWT (HTTP-only Cookie 기반)
-- **File Storage**: AWS S3
-- **Upload Handling**: Multer, Multer-S3
-- **Environment Configuration**: dotenv
+| 분류            | 기술 스택                                                                 |
+|-----------------|---------------------------------------------------------------------------|
+| **Framework**   | Node.js, Express.js                                                       |
+| **Language**    | TypeScript 5.x (초기 개발은 JavaScript(ES6+), 이후 리팩토링)                    |
+| **DBMS / ODM**  | MongoDB, Mongoose                                                         |
+| **Public Cloud**| AWS (EC2 - 서버 배포, S3 - 이미지/파일 업로드)                                   |
+| **DevOps**      | Docker, Docker Compose, dotenv                                            |
+| **Others**      | JWT(HTTP-only Cookie 기반), Redis, Multer, Multer-S3                       |
+
 
 ---
 
@@ -35,6 +35,33 @@ MongoDB Atlas와 AWS S3를 연동하고, JWT는 **HTTP-only 쿠키 방식**으�
 - **이미지 업로드**
   - AWS S3에 이미지 업로드
   - 게시글 등록 시 이미지 URL을 DB에 저장
+
+---
+
+## 🚀 프로젝트 고도화
+
+실무에 가까운 아키텍처와 보안, 유지보수성을 고려하여 아래와 같은 고도화를 진행하였습니다:
+
+### 1. JavaScript → TypeScript 리팩토링
+- 타입 안정성과 IDE 자동완성, 오류 방지를 위한 전체 코드베이스 마이그레이션
+
+### 2. SOLID 원칙 기반 구조 설계
+- 서비스, 컨트롤러, DAO 분리 및 의존성 주입 방식 설계
+- 관심사 분리를 통한 테스트 용이성과 유지보수성 향상
+
+### 3. Redis를 활용한 자동 로그아웃 기능
+- Redis Keyspace Notification을 활용하여 자동 로그아웃 처리
+- 실시간 보안 기능 강화
+
+### 4. Jest 기반 테스트 코드 작성
+- 주요 서비스 로직에 대한 **단위 테스트(Unit Test)** 작성
+- Redis 이벤트 기반 로그아웃 흐름을 포함한 **통합 테스트(Integration Test)** 구성  
+  → 예: Redis의 TTL 만료 이벤트 발생 시  `logoutHandler`가 정상 동작 테스트
+- 테스트 디렉토리 구조 및 Mocking 전략 적용
+
+### 5. Docker 기반 배포 환경 구성
+- `Dockerfile`, `docker-compose.yml` 작성
+- Node.js, MongoDB, Redis, Nginx 등의 서비스를 컨테이너 기반으로 통합 관리
 
 ---
 
