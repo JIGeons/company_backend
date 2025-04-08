@@ -62,6 +62,9 @@ MongoDB Atlas와 AWS S3를 연동하고, JWT는 **HTTP-only 쿠키 방식**으�
 ### 5. Docker 기반 배포 환경 구성
 - `Dockerfile`, `docker-compose.yml` 작성
 - Node.js, MongoDB, Redis, Nginx 등의 서비스를 컨테이너 기반으로 통합 관리
+- **Docker Hub를 통한 이미지 관리 및 AWS EC2에 배포 구성**
+  - 로컬에서 빌드한 이미지를 Docker Hub에 Push
+  - EC2 인스턴스에서 Pull 및 컨테이너 실행으로 손쉬운 배포 운영
 
 ---
 
