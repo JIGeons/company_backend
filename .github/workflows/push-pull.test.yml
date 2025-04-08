@@ -28,8 +28,8 @@ jobs:
     # 버전 매트릭스 전력
     strategy:
       matrix:
-        # Node.js 18.x, 20.x, 22.x 버전 각각 테스트 실행
-        node-version: [18.x, 20.x, 22.x]
+        # Node.js 23.x 버전 테스트 (여러 버전 넣을 시 각 버전으로 테스트)
+        node-version: [ 23.x ]
 
     # 실행할 단계들, 각 단계는 순서대로 실행
     steps:
