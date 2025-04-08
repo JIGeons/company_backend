@@ -19,8 +19,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      platforms:
+        - linux/amd64
     container_name: abc-company-server
-    image: jiseong98/abc-backend:1.0.0
+    image: abc-backend:1.0.0
     ports:
       - "3000:3000"
     env_file:
@@ -41,9 +43,9 @@ services:
     ports:
       - "27017:27017"
     environment:
-      MONGO_INITDB_ROOT_USERNAME: abc-admin        # 루트 사용자 이름 (MongoDB 최초 실행 시 생성)
-      MONGO_INITDB_ROOT_PASSWORD: abc1234    # 루트 사용자 비밀번호
-      MONGO_INITDB_DATABASE: abc-company              # 초기 생성할 데이터베이스 이름
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER}        # 루트 사용자 이름 (MongoDB 최초 실행 시 생성)
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}    # 루트 사용자 비밀번호
+      MONGO_INITDB_DATABASE: ${MONGO_DATABASE}              # 초기 생성할 데이터베이스 이름
     volumes:
       - mongo-data:/data/db
     restart: always
