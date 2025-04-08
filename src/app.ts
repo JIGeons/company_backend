@@ -5,7 +5,7 @@ import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import { ErrorMiddleware } from "@middlewares/error.middleware";
-import {PORT, MONGO_URI, NODE_ENV} from "@/config";
+import { PORT, MONGO_URI } from "@/config";
 
 // Interface
 import { Routes } from "@interfaces/routes.interface";
