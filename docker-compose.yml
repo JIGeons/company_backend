@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  nginx:
+    image: nginx:latest
+    container_name: nginx-proxy
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./certs:/etc/letsencrypt
+      - ./logs:/var/log/nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - backend
+    restart: always
+
+  backend:
+    container_name: abc-company-server
+    image: abccompany/backend:1.0.0
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+#    env_file:
+#      - .env.prod  # .env.prod 의 환경변수를 도커 컨테이너로 주입
+    depends_on:
+      - mongo
+      - redis
+    restart: always
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:3000/health" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  mongo:
+    image: mongo:6
+    container_name: mongo-db
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: test  # 루트 사용자 이름 (MongoDB 최초 실행 시 생성)
+      MONGO_INITDB_ROOT_PASSWORD: 1234! # 루트 사용자 비밀번호
+      MONGO_INITDB_DATABASE: testdb     # 초기 생성할 데이터베이스 이름
+    volumes:
+      - mongo-data:/data/db
+    restart: always
+    healthcheck:
+      test: [ "CMD", "mongo", "--eval", "db.adminCommand('ping')" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7
+    container_name: redis-server
+    ports:
+      - "6379:6379"
+    restart: always
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  mongo-data:
