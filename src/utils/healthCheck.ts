@@ -6,6 +6,7 @@ import mongoose from "mongoose";
 import { redisClient } from "@config/redis";
 
 export const healthCheck = async (req: Request, res: Response): Promise<Response> => {
+  console.log("## 헬스 체크");
   try {
     // mongoDB 헬스
     const mongoDB = mongoose.connection.db;
@@ -22,11 +23,12 @@ export const healthCheck = async (req: Request, res: Response): Promise<Response
     }
 
     if (mongoOk && redisOk === 'PONG') {
-      return res.status(200).send('OK');
+      return res.status(200).type('text/plain').send('OK');
     }
 
-    return res.status(500).send('Unhealthy');
+    return res.status(500).type('text/plain').send('Unhealthy');
   } catch (err) {
-    return res.status(500).send('Unhealthy');
+    console.log("### Server unhealthy ", err);
+    return res.status(500).type('text/plain').send('Unhealthy');
   }
 }
