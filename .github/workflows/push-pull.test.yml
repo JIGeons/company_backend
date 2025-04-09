@@ -60,6 +60,8 @@ jobs:
         echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> .env.test
         echo "AWS_BUCKET_NAME=${{ secrets.AWS_BUCKET_NAME }}" >> .env.test
         echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> .env.test
+        echo "PORT=3001" >> .env.test
+        
 
     # redis 서버 실행
     - name: Start Redis
