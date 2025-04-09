@@ -60,7 +60,7 @@ export class ContactService {
       throw new HttpException(500, error);
     }
 
-    // contact가 존재하지 않는 경우 error
+    // contact 가 존재하지 않는 경우 error
     if (!success) {
       throw new HttpException(404, '문의가 생성되지 않았습니다.');
     }
