@@ -25,6 +25,11 @@ jobs:
   build:
     # build 작업을 실행할 가상 머신 환경 지정
     runs-on: ubuntu-latest
+    services:
+      mongo:
+        image: mongo
+        ports:
+          - 27018:2701
     # 버전 매트릭스 전력
     strategy:
       matrix:
