@@ -98,7 +98,11 @@ export class UserService {
   }
 
   public async logout (user: AuthUser): Promise<Result> {
+    console.error("AuthUser: ", user);
     const findUser = await this.userDao.findById(user.userId);
+
+    console.log("####\n\n\n\n");
+    console.error("findUser: ", findUser);
 
     // 에러가 존재하는 경우
     if (findUser.error) {
