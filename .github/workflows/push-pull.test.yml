@@ -28,8 +28,12 @@ jobs:
     services:
       mongo:
         image: mongo
+        env:
+          MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER}
+          MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+          MONGO_INITDB_DATABASE: ${MONGO_DATABASE}
         ports:
-          - 27018:2701
+          - 27018:27017
     # 버전 매트릭스 전력
     strategy:
       matrix:
@@ -46,6 +50,10 @@ jobs:
       run: |
         echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env.test
         echo "MONGO_URI=${{ secrets.MONGO_URI }}" >> .env.test
+        echo "MONGO_ROOT_USER=${{ secrets.MONGO_ROOT_USER }}" >> .env.test
+        echo "MONGO_ROOT_PASSWORD=${{ secrets.MONGO_ROOT_PASSWORD }}" >> .env.test
+        echo "MONGO_DATABASE=${{ secrets.MONGO_DATABASE }}" >> .env.test
+        echo "MONGO_DATABASE=${{ secrets.MONGO_URI_PORT }}" >> .env.test
         echo "REDIS_URI=${{ secrets.REDIS_URI }}" >> .env.test
         echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> .env.test
         echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> .env.test

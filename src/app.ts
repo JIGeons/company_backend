@@ -5,7 +5,8 @@ import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import { ErrorMiddleware } from "@middlewares/error.middleware";
-import { PORT, MONGO_URI } from "@/config";
+import { PORT } from "@/config";
+import { MONGO_URI, MONGO_ROOT_USER, MONGO_ROOT_PASSWORD, MONGO_DATABASE, MONGO_URI_PORT } from '@/config';
 import { initializeRedis } from "@config/redis";
 import { healthCheck } from "@utils/healthCheck";
 
@@ -45,7 +46,8 @@ export class App {
 
   // 데이터베이스 연결
   private async connectToDatabase() {
-    mongoose.connect(MONGO_URI)
+    const mongoURI = `mongodb://${MONGO_ROOT_USER}:${MONGO_ROOT_PASSWORD}@${MONGO_URI_PORT}/${MONGO_DATABASE}`
+    mongoose.connect(mongoURI)
       .then(() => { console.log("Mongo DB 연결 성공.")})
       .catch((error) => { console.error('Mongo DB 연결 실패( error: ', error, ' )') });
   }
