@@ -46,7 +46,7 @@ export class App {
 
   // 데이터베이스 연결
   private async connectToDatabase() {
-    const mongoURI = `mongodb://${MONGO_ROOT_USER}:${MONGO_ROOT_PASSWORD}@${MONGO_URI_PORT}/${MONGO_DATABASE}`
+    const mongoURI = `mongodb://${MONGO_ROOT_USER}:${MONGO_ROOT_PASSWORD}@${MONGO_URI_PORT}/${MONGO_DATABASE}`;
     mongoose.connect(mongoURI)
       .then(() => { console.log("Mongo DB 연결 성공.")})
       .catch((error) => {
