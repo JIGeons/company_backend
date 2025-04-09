@@ -18,13 +18,13 @@ import { createContact } from "@tests/factory/contact.factory";
 // ENV
 import { MONGO_URI, JWT_SECRET } from "@/config";
 
-beforeAll(async () => {
-  await mongoose.connect(MONGO_URI || '');
-});
-
-afterAll(async () => {
-  await mongoose.connection.close();
-});
+// beforeAll(async () => {
+//   await mongoose.connect(MONGO_URI || '');
+// });
+//
+// afterAll(async () => {
+//   await mongoose.connection.close();
+// });
 
 describe('Contact 통합 테스트', () => {
   let app;
