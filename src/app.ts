@@ -49,7 +49,10 @@ export class App {
     const mongoURI = `mongodb://${MONGO_ROOT_USER}:${MONGO_ROOT_PASSWORD}@${MONGO_URI_PORT}/${MONGO_DATABASE}`
     mongoose.connect(mongoURI)
       .then(() => { console.log("Mongo DB 연결 성공.")})
-      .catch((error) => { console.error('Mongo DB 연결 실패( error: ', error, ' )') });
+      .catch((error) => {
+        console.error('Mongo DB 연결 실패( error: ', error, ' )');
+        return ;
+      });
   }
 
   // Redis 연결 및 이벤트 설정
