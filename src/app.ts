@@ -70,7 +70,7 @@ export class App {
 
   private initializeHealthCheck() {
     // @ts-ignore
-    this.app.get("/health",  healthCheck);
+    this.app.get("/health", healthCheck);
   }
 
   private initializeRoutes(routes: Routes[]) {
