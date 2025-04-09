@@ -49,6 +49,7 @@ jobs:
     - name: Create .env.production
       run: |
         echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env.test
+        echo "SERVER_URI=${{ secrets.SERVER_URI }}" >> .env.test
         echo "MONGO_URI=${{ secrets.MONGO_URI }}" >> .env.test
         echo "MONGO_ROOT_USER=${{ secrets.MONGO_ROOT_USER }}" >> .env.test
         echo "MONGO_ROOT_PASSWORD=${{ secrets.MONGO_ROOT_PASSWORD }}" >> .env.test
