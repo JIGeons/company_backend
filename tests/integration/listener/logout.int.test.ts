@@ -23,6 +23,8 @@ describe("Logout Handler 통합 테스트", () => {
   let server: any;
   let jwtToken: string;
 
+  jest.setTimeout(30000);
+
   beforeAll(async () => {
     app = new App([new UserRoute()]);
     app.listen(); // 테스트용 서버 포트 실행
@@ -46,8 +48,6 @@ describe("Logout Handler 통합 테스트", () => {
   })
 
   it('정상적인 accessToken을 전달하면 로그아웃이 성공해야한다.', async () => {
-
-    jest.setTimeout(30000);
 
     const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
     const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
