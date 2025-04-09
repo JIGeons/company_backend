@@ -49,8 +49,8 @@ describe("Logout Handler 통합 테스트", () => {
 
   it('정상적인 accessToken을 전달하면 로그아웃이 성공해야한다.', async () => {
 
-    const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation((...args) => { console.info('[LOG} ', args)});
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation((...args) => { console.info('[ERROR] ', args)});
 
     await logoutHandler(jwtToken);
 
