@@ -23,6 +23,5 @@ export const loggedinUser = async (overrides = {}) => {
     ...overrides,
   }
 
-  console.log("DataBase: ", MONGO_URI);
   return await User.create(userData);
 }
