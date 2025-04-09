@@ -1,5 +1,5 @@
 import axios from "axios";
-import {Result} from "@interfaces/result.interface";
+import { Result } from "@interfaces/result.interface";
 
 export const getClientIp = async (): Promise<Result> => {
   try {
