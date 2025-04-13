@@ -7,7 +7,7 @@ import { HttpException } from "@exceptions/httpException";
 import jwt from "jsonwebtoken";
 
 // ENV
-import { NODE_ENV, JWT_SECRET } from "@/config";
+import { NODE_ENV, JWT_SECRET, EXPIRES } from "@/config";
 
 // Interface
 import { AuthUser } from "@interfaces/user.interface";
@@ -39,22 +39,17 @@ export class UserController {
         return next(new HttpException(400, "Invalid username or password"));
       }
 
-      // JWT 토큰 발급
-      const token = jwt.sign(
-        { userId: loginResult.data._id, username: loginResult.data.username },
-        JWT_SECRET,
-        { expiresIn: '24h' }  // 토큰 유효기간 설정
-      )
+      const resultData = loginResult.data;
 
-      res.cookie('token', token, {
+      res.cookie('token', resultData.token, {
         httpOnly: true,               // 클라이언트(JavaScript)에서 해당 쿠키에 접근 할 수 없도록 설정
         secure: NODE_ENV === 'prod',         // Https 연결에서만 쿠키를 전송하도록 설정 (서버가 운영환경에서만 Secure 옵션 활성화)
         sameSite: 'strict',           // 외부 사이트에서의 요청에 대해 쿠키를 전송하지 않도록 설정
-        maxAge: 24 * 60 * 60 * 1000   // 쿠키의 만료 시간 설정
+        maxAge: EXPIRES * 1000   // 쿠키의 만료 시간 설정
       });
 
-      const userWithoutPassword = loginResult.data.toObject();  // mongoDB 객체를 일반 객체로 변환
-      delete userWithoutPassword.password;
+      const userWithoutPassword = resultData.user.toObject();  // mongoDB 객체를 일반 객체로 변환
+      delete userWithoutPassword.password;  // password 제거
 
       res.status(200).json({ message: "로그인 성공", user : userWithoutPassword });
     } catch (error) {

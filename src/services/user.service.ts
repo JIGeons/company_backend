@@ -13,6 +13,9 @@ import { UserDao } from "@/daos/user.dao";
 // Dto
 import { CreateUserDto, UpdateUserDto } from "@/dtos/user.dto";
 
+// Redis
+import { storeToken } from "@config/redis";
+import {createJWTToken} from "@utils/jwt.util";
 
 @Service()
 export class UserService {
@@ -93,8 +96,22 @@ export class UserService {
       console.log("IP 주소를 가져오던 중 오류 발생: ", error);
     }
 
+    const userId = user._id.toString();
+    const userName = user.username;
+
+    // 토큰 생성
+    const token = await createJWTToken(userId, userName);
+
+    // Redis에 로그인 정보 저장 (자동 로그아웃 용)
+    try {
+      await storeToken(userId, token);
+      console.log("Redis Store 성공");
+    } catch (error) {
+      console.log("Redis 로그인 정보 Store 실패: ", error);
+    }
+
     await user.save();
-    return { success: true, data: user };
+    return { success: true, data: { user: user, token: token } };
   }
 
   public async logout (user: AuthUser): Promise<Result> {

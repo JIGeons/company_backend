@@ -3,8 +3,8 @@
  */
 
 import { createClient } from 'redis';
-import { REDIS_URI } from "@config/index";
-import {logoutHandler} from "@/listeners/logout.handler";
+import { REDIS_URI, EXPIRES } from "@config/index";
+import { logoutHandler } from "@/listeners/logout.handler";
 
 // 일반 명령용 클라이언트
 export const redisClient = createClient({ url: REDIS_URI });
@@ -12,6 +12,7 @@ export const redisClient = createClient({ url: REDIS_URI });
 // pub/sub 이벤트 감지용 클라이언트
 export const redisSubscriber = createClient({ url: REDIS_URI });
 
+// 호이스팅 되는 메서드
 export async function initializeRedis() {
   // 명령용 클라이언트 연결
   await redisClient.connect()
@@ -38,4 +39,9 @@ export async function initializeRedis() {
   });
 
   console.log('💡 Redis expired 이벤트 구독 시작');
+}
+
+// 호이스팅이 되지 않는 메서드
+export const storeToken = async (userId: string, token: string) => {
+  await redisClient.set(`accessToken:${token}:session`, userId, { EX: EXPIRES });
 }
