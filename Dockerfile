@@ -20,6 +20,10 @@ RUN npm install --legacy-peer-deps
 # tsconfig-paths 포함된 실행 환경 만들기
 RUN npm install tsconfig-paths --save
 
+# curl 추가
+RUN apk add --no-cache curl
+RUN apk add --no-cache mongodb-tools
+
 # 빌드 결과만 복사
 COPY --from=builder /app/dist ./dist
 

@@ -19,6 +19,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    platform: linux/amd64
     container_name: abc-company-server
     image: jiseong98/abc-backend:1.0.0
     ports:
@@ -47,12 +48,6 @@ services:
     volumes:
       - mongo-data:/data/db
     restart: always
-    healthcheck:
-      test: [ "CMD", "mongo", "--eval", "db.adminCommand('ping')" ]
-      interval: 10s       # 체크 간격
-      start_period: 30s   # 초기 대기 시간 추가
-      timeout: 5s
-      retries: 5
 
   redis:
     image: redis:7

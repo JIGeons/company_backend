@@ -1,35 +1,42 @@
 version: '3.8'
 
 services:
-  app:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: abc-company-server
-    build: .
+    image: jiseong98/abc-backend:1.0.
     ports:
       - "3000:3000"
+    env_file:
+      - .env.dev  # .env.dev의 환경변수를 도커 컨테이너로 주입
     depends_on:
       - mongo
       - redis
-    env_file:
-      - .env.dev  # .env.dev의 환경변수를 도커 컨테이너로 주입
-    restart: always
+    restart: no
 
   mongo:
+    image: mongo:6
     container_name: mongo-db
-    image: mongo:6.0
     ports:
       - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: test             # 루트 사용자 이름 (MongoDB 최초 실행 시 생성)
+      MONGO_INITDB_ROOT_PASSWORD: test1234         # 루트 사용자 비밀번호
+      MONGO_INITDB_DATABASE: abc-company           # 초기 생성할 데이터베이스 이름
     volumes:
-      - mongo_data:/data/db
+      - ./volume/mongo_data:/data/db
     restart: always
 
   redis:
-    container_name: abc-redis-server
-    image: redis      # Redis 공식 이미지 사용
+    image: redis:7      # Redis 공식 이미지 사용
+    container_name: redis-server
     ports:
       - "6379:6379"   # 호스트 포트: 컨테이너 포트 매핑 (Redis 기본 포트)
     volumes:
-      - redis_data:/data      # Redis 데이터 파일을 로컬 볼륨에 저장 (데이터 유지)
-    restart: unless-stopped   # 컨테이너가 꺼지면 자동 재시작 (수동으로 중지하지 않는 한)
+      - ./volume/redis_data:/data      # Redis 데이터 파일을 로컬 볼륨에 저장 (데이터 유지)
+    restart: always
 
 volumes:
   mongo_data:
