@@ -46,7 +46,7 @@ export class UploadController {
 
       const uploadResult = await this.uploadService.uploadFile(file, originalName);
 
-      res.status(200).json({ success: true, data: { imageUrl: uploadResult.data.imageUrl } });
+      res.status(200).json({ success: true, data: { fileUrl: uploadResult.data.fileUrl } });
     } catch (error) {
       console.log("파일 업로드 중 오류 발생: ", String(error));
       next(error);

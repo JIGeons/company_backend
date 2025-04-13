@@ -111,6 +111,8 @@ export class PostService {
       fileUrl,
     });
 
+    console.log(createPostDto);
+
     // 입력값 유효성 검사
     const postValidateError = await validate(createPostDto);
     if (postValidateError.length > 0) {
@@ -130,7 +132,7 @@ export class PostService {
     return { success: true, data: createPostResult };
   }
 
-  public async updatePost(id: string, title: string, content: string, fileUrl: string): Promise<Result> {
+  public async updatePost(id: string, title: string, content: string, fileUrl: string[]): Promise<Result> {
     const findPost = await this.postDao.findOneById(id);
     if (findPost.error) {
       throw new HttpException(500, findPost.error);
@@ -147,8 +149,8 @@ export class PostService {
 
     // 이미지&파일 삭제
     const deletedImages: any[] = oldContentImages.filter((url: string) => !newContentImages.includes(url));
-    const deletedFiles: string[] = (postData.fileUrl ?? []).filter(
-      (url: string) => !(fileUrl ?? []).includes(url)
+    const deletedFiles: string[] = (postData.fileUrl).filter(
+      (url: string) => !(fileUrl).includes(url)
     );
 
     // AWS S3 파일 삭제
