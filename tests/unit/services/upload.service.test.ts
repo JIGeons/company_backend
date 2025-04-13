@@ -67,7 +67,7 @@ describe('UploadService', () => {
       const result = await uploadService.uploadFile(mockFile, encodeURIComponent('문서.pdf'));
 
       expect(result.success).toBe(true);
-      expect(result.data?.imageUrl).toContain('/post-files/');
+      expect(result.data?.fileUrl).toContain('/post-files/');
       expect(s3FileStorageService.uploadFile).toHaveBeenCalledWith(
         mockFile,
         '문서.pdf',
