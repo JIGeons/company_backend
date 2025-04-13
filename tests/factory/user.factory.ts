@@ -3,7 +3,6 @@
  */
 
 import User from '@/models/user.model';
-import {MONGO_URI} from "../../src/config";
 
 export const createUser = async (overrides = {}) => {
   const userData = {
