@@ -4,11 +4,15 @@ import mongoose from "mongoose";
 
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import { ErrorMiddleware } from "@middlewares/error.middleware";
 import { PORT } from "@/config";
 import { MONGO_URI, MONGO_ROOT_USER, MONGO_ROOT_PASSWORD, MONGO_DATABASE, MONGO_URI_PORT } from '@/config';
 import { initializeRedis } from "@config/redis";
 import { healthCheck } from "@utils/healthCheck";
+
+// Middleware
+import { ErrorMiddleware } from "@middlewares/error.middleware";
+import { ApiLoggerMiddleware } from "@middlewares/apiLoggerMiddleware";
+
 
 // Interface
 import { Routes } from "@interfaces/routes.interface";
@@ -47,6 +51,9 @@ export class App {
   // 데이터베이스 연결
   private async connectToDatabase() {
     const mongoURI = `mongodb://${MONGO_ROOT_USER}:${MONGO_ROOT_PASSWORD}@${MONGO_URI_PORT}/${MONGO_DATABASE}?authSource=admin`;
+    console.log(`### MongoDB URI: `);
+    console.log(mongoURI);
+    console.log(MONGO_URI_PORT);
     mongoose.connect(mongoURI)
       .then(() => { console.log("Mongo DB 연결 성공.")})
       .catch((error) => {
@@ -80,7 +87,7 @@ export class App {
 
   private initializeRoutes(routes: Routes[]) {
     routes.forEach(route => {
-      this.app.use('/', route.router);
+      this.app.use('/', ApiLoggerMiddleware, route.router);
     });
   }
 

@@ -55,7 +55,7 @@ export class PostDao {
       const postResult = await Post.findOne().sort({ number: -1 }).lean();
 
       if (!postResult) {
-        return { success: false, data: [] }
+        return { success: false, data: null }
       }
 
       return { success: false, data: postResult };
