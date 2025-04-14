@@ -1,9 +1,13 @@
+/**
+ * User Model
+ */
+
 import mongoose, { Schema, Model } from 'mongoose';
 
 // Interface
-import { User } from '@interfaces/user.interface';
+import { User, UserDocument } from '@interfaces/user.interface';
 
-const userSchema: Schema<User> = new Schema(
+const userSchema: Schema<UserDocument> = new Schema(
   {
     username: {
       type: String,
@@ -51,6 +55,8 @@ const userSchema: Schema<User> = new Schema(
 );
 
 // 모델 이름은 'User'로 설정, User의 설정값은 userSchema로 설정
-const User: Model<User> = mongoose.model<User>("User", userSchema);
+const User: Model<UserDocument> = mongoose.model<UserDocument>("User", userSchema);
 
-export default User;
+export default function () {
+  return User;
+};

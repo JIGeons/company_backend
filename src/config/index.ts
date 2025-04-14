@@ -1,8 +1,13 @@
+/**
+ * config index.ts 파일 환경변수 주입
+ */
+
 import { config } from "dotenv";
 import * as process from "node:process";
 config({ path: `.env.${process.env.NODE_ENV || 'test'}` });
 
 export const NODE_ENV = process.env.NODE_ENV || 'test';
+export const UNIT_TEST = process.env.UNIT_TEST || 'false';
 export const { PORT } = process.env;
 export const { SERVER_URI, REDIS_URI } = process.env;
 export const { MONGO_URI, MONGO_ROOT_USER, MONGO_ROOT_PASSWORD, MONGO_DATABASE, MONGO_URI_PORT } = process.env;
