@@ -97,7 +97,7 @@ export class PostService {
     return { success: true, data: responseData };
   }
 
-  public async createPost(title: string, content: string, fileUrl: string): Promise<Result> {
+  public async createPost(title: string, content: string, fileUrl: string[]): Promise<Result> {
     const { success: findSuccess, data: findByRecentNumberResult, error: findError } = await this.postDao.findOneByRecentNumber();
     if (findError) {
       throw new HttpException(500, findError);
@@ -111,7 +111,7 @@ export class PostService {
       fileUrl,
     });
 
-    console.log(createPostDto);
+    // console.log(createPostDto);
 
     // 입력값 유효성 검사
     const postValidateError = await validate(createPostDto);

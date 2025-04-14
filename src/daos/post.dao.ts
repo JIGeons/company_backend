@@ -71,7 +71,7 @@ export class PostDao {
         return { success: false, data: [] }
       }
 
-      return { success: true, data: createPostResult.save() };
+      return { success: true, data: createPostResult.toObject() };
     } catch (error) {
       return { success: false, error: "Create Post 중 문제 발생"};
     }
