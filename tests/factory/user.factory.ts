@@ -2,7 +2,9 @@
  * User Factory 파일
  */
 
-import User from '@/models/user.model';
+import { DB } from '@/database';
+
+const User = DB.MONGO.User;
 
 export const createUser = async (overrides = {}) => {
   const userData = {
@@ -14,7 +16,7 @@ export const createUser = async (overrides = {}) => {
   return await User.create(userData);
 }
 
-export const loggedinUser = async (overrides = {}) => {
+export const loggedInUser = async (overrides = {}) => {
   const userData = {
     "username": "test",
     "password": "test123!",

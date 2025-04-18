@@ -1,7 +1,7 @@
 /**
  * Contact Factory 파일
  */
-import Contact from '@/models/contact.model';
+import Contact from '@/database/mongo/models/contact.model';
 
 export const createContact = async (overrides = {}) => {
   const contactData = {

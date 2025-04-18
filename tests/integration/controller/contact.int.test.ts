@@ -10,7 +10,7 @@ import {describe} from "node:test";
 import jwt from "jsonwebtoken";
 
 // Model
-import Contact from '@/models/contact.model';
+import Contact from '@/database/mongo/models/contact.model';
 
 // Factory
 import { createContact } from "@tests/factory/contact.factory";

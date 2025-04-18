@@ -8,15 +8,19 @@ import { App } from "@/app";
 import { logoutHandler } from "@/listeners/logout.handler";
 import jwt from 'jsonwebtoken';
 
+
+// Database
+import { DB } from "@/database";
+const User = DB.MONGO.User;
+
 // Routes
 import { UserRoute } from "@/routes/user.route";
 
 // Factory
-import { loggedinUser } from "@tests/factory/user.factory";
+import { loggedInUser } from "@tests/factory/user.factory";
 
 // ENV
 import {JWT_SECRET, MONGO_URI} from "@/config";
-import User from "../../../src/models/user.model";
 
 describe("Logout Handler 통합 테스트", () => {
   let app: App;
@@ -30,12 +34,12 @@ describe("Logout Handler 통합 테스트", () => {
     app.listen(); // 테스트용 서버 포트 실행
 
     // 테스트용 로그인 계성 생성
-    const loginResult = await loggedinUser();
+    const loginResult = await loggedInUser();
     await new Promise(res => setTimeout(res, 100)); // 약간 기다림 (DB write 안정화)
     const check = await User.findById(loginResult._id);
     console.log("DB에서 직접 찾은 유저:", check);
 
-    // 테스트용 JWT 발급
+    // @ts-ignore 테스트용 JWT 발급
     const payload = { userId: loginResult._id.toString(), username: loginResult.username };
     console.log(payload);
     // @ts-ignore
