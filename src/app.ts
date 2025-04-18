@@ -11,7 +11,7 @@ import { healthCheck } from "@utils/healthCheck";
 
 // Middleware
 import { ErrorMiddleware } from "@middlewares/error.middleware";
-import { ApiLoggerMiddleware } from "@middlewares/apiLoggerMiddleware";
+import { ApiLoggerMiddleware } from "@middlewares/apiLogger.middleware";
 
 
 // Interface
@@ -72,6 +72,7 @@ export class App {
     this.app.use(express.json());
     this.app.use(express.urlencoded({extended: false}));
     this.app.use(cookieParser());
+    this.app.use(ApiLoggerMiddleware);
 
     // cors 설정
     this.app.use(cors({
@@ -87,7 +88,7 @@ export class App {
 
   private initializeRoutes(routes: Routes[]) {
     routes.forEach(route => {
-      this.app.use('/', ApiLoggerMiddleware, route.router);
+      this.app.use('/', route.router);
     });
   }
 
