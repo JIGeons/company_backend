@@ -15,6 +15,7 @@ MongoDB Atlas와 AWS S3를 연동하고, JWT는 **HTTP-only 쿠키 방식**으�
 | **Language**    | TypeScript 5.x (초기 개발은 JavaScript(ES6+), 이후 리팩토링)                    |
 | **DBMS / ODM**  | MongoDB, Mongoose                                                         |
 | **Public Cloud**| AWS (EC2 - 서버 배포, S3 - 이미지/파일 업로드)                                   |
+| **Test**        | Jest                                                                      |
 | **DevOps**      | Docker, Docker Compose, dotenv                                            |
 | **Others**      | JWT(HTTP-only Cookie 기반), Redis, Multer, Multer-S3                       |
 
