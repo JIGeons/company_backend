@@ -5,7 +5,7 @@ import { Service } from "typedi";
 import { Types } from "mongoose";
 
 // Model
-import Contact from '@models/contact.model';
+import Contact from '@/database/mongo/models/contact.model';
 
 // Interface
 import { Result } from "@interfaces/result.interface";

@@ -18,7 +18,7 @@ export const connectToMongoDB = async () => {
 }
 
 // 모델 import
-import UserModel from '@models/user.model';
+import UserModel from '@/database/mongo/models/user.model';
 
 // 모델 주입
 const User = UserModel();

@@ -15,3 +15,7 @@ export const connectToDatabases = async () => {
   // MongoDB, MySQL 연결
   await connectToMongoDB();
 }
+
+export const DB = {
+  MONGO: MONGODB,
+}
