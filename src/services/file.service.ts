@@ -52,7 +52,7 @@ export class S3FileStorageService implements FileStorageServiceInterface {
       }));
       console.log(`[S3] 파일 삭제 완료: ${key}`);
     } catch (error) {
-      console.error(`[S3] 파일 삭제 에러: `, error);
+      throw new Error(`[S3] 파일 삭제 실패`);
     }
   }
 

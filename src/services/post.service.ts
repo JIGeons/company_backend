@@ -7,6 +7,9 @@ import { validate } from "class-validator";
 import { marked } from "marked";
 import { HttpException } from "@exceptions/httpException";
 
+// Database
+import { DB } from '@/database';
+
 // Interface
 import { Result } from "@interfaces/result.interface";
 import { FileStorageServiceInterface } from "@interfaces/file.interface";
@@ -25,6 +28,8 @@ import { getClientIp } from "@utils/getClientIp";
 
 @Service()
 export class PostService {
+  private readonly MongoDB = DB.MONGO.mongoose;
+
   constructor(
     private readonly postDao: PostDao,
 
@@ -133,52 +138,74 @@ export class PostService {
   }
 
   public async updatePost(id: string, title: string, content: string, fileUrl: string[]): Promise<Result> {
-    const findPost = await this.postDao.findOneById(id);
-    if (findPost.error) {
-      throw new HttpException(500, findPost.error);
+    // mongoose 트랜잭션 세션 시작
+    const session = await this.MongoDB.startSession();
+    session.startTransaction();
+
+    try {
+      const findPost = await this.postDao.findOneById(id, session);
+      if (findPost.error) {
+        throw new HttpException(500, findPost.error);
+      }
+      if (!findPost.success) {
+        throw new HttpException(404, "수정할 게시글이 존재하지 않습니다.");
+      }
+      const postData = findPost.data;
+
+      // updatePostDto 객체 생성
+      const updatePostDto = plainToInstance(UpdatePostDto, {
+        id: String(postData._id),  // mongoose 객체 id타입을 string 형으로 변환.
+        title,
+        content,
+        fileUrl,
+      });
+
+      // updatePostDto 유효성 검사
+      const updateValidateError = await validate(updatePostDto);
+      if (updateValidateError.length > 0) {
+        const errorField = updateValidateError.map( validate => validate.property );
+        throw new HttpException(400, "잘못된 입력값입니다.", errorField);
+      }
+
+      const { success, data: updatePostResult, error } = await this.postDao.updatePost(updatePostDto, session);
+      if (error) {
+        throw new HttpException(500, error);
+      }
+      if (!success) {
+        throw new HttpException(500, error);
+      }
+
+      // content에 포함된 이미지 파일 필터링
+      const imgRegex = /https:\/\/[^"']*?\.(?:png|jpg|jpeg|gif|PNG|JPG|JPEG|GIF)/g;
+      const oldContentImages: any[] = postData.content.match(imgRegex) || [];
+      const newContentImages: any[] = content.match(imgRegex) || [];
+
+      // 이미지&파일 삭제
+      const deletedImages: any[] = oldContentImages.filter((url: string) => !newContentImages.includes(url));
+      const deletedFiles: string[] = (postData.fileUrl).filter(
+        (url: string) => !(fileUrl).includes(url)
+      );
+
+      // AWS S3 파일 삭제
+      const allDeletedFiles = [...deletedImages, ...deletedFiles];
+      await this.s3FileStorageService.deleteFiles(allDeletedFiles);
+
+      // 트랜잭션 커밋
+      await session.commitTransaction();
+      await session.endSession();
+
+      return { success: true, data: updatePostResult };
+    } catch (error) {
+      // 트랜잭션 롤백
+      await session.abortTransaction();
+      await session.endSession();
+
+      if (error instanceof HttpException) {
+        throw new HttpException(error.status, error.message, error?.error);
+      }
+
+      throw new HttpException(500, "### UpdatePost 서버 에러", error);
     }
-    if (!findPost.success) {
-      throw new HttpException(404, "수정할 게시글이 존재하지 않습니다.");
-    }
-    const postData = findPost.data;
-
-    // content에 포함된 이미지 파일 필터링
-    const imgRegex = /https:\/\/[^"']*?\.(?:png|jpg|jpeg|gif|PNG|JPG|JPEG|GIF)/g;
-    const oldContentImages: any[] = postData.content.match(imgRegex) || [];
-    const newContentImages: any[] = content.match(imgRegex) || [];
-
-    // 이미지&파일 삭제
-    const deletedImages: any[] = oldContentImages.filter((url: string) => !newContentImages.includes(url));
-    const deletedFiles: string[] = (postData.fileUrl).filter(
-      (url: string) => !(fileUrl).includes(url)
-    );
-
-    // AWS S3 파일 삭제
-    const allDeletedFiles = [...deletedImages, ...deletedFiles];
-    await this.s3FileStorageService.deleteFiles(allDeletedFiles);
-
-    const updatePostDto = plainToInstance(UpdatePostDto, {
-      id: String(postData._id),  // mongoose 객체 id타입을 string 형으로 변환.
-      title,
-      content,
-      fileUrl,
-    });
-
-    const updateValidateError = await validate(updatePostDto);
-    if (updateValidateError.length > 0) {
-      const errorField = updateValidateError.map( validate => validate.property );
-      throw new HttpException(400, "잘못된 입력값입니다.", errorField);
-    }
-
-    const { success, data: updatePostResult, error } = await this.postDao.updatePost(updatePostDto);
-    if (error) {
-      throw new HttpException(500, error);
-    }
-    if (!success) {
-      throw new HttpException(404, "수정 할 게시글을 찾을 수 없습니다.")
-    }
-
-    return { success: true, data: updatePostResult };
   }
 
   public async deletePost(id: string) {
