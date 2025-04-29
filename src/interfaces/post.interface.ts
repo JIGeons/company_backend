@@ -2,6 +2,8 @@
  * Post Interface
  */
 
+import { Document } from "mongoose";
+
 export interface Post {
   number: number;
   title: string;
@@ -16,3 +18,6 @@ export interface Post {
   createdAt?: Date; // 선택적 필드로 변경
   updatedAt?: Date; // 선택적 필드로 변경
 }
+
+// PostModel 인터페이스 정의
+export interface PostDocument extends Post, Document {}

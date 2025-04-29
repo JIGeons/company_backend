@@ -4,6 +4,7 @@
 import { Service } from "typedi";
 import Post from "@database/mongo/models/post.model";
 import { ClientSession } from 'mongoose';
+import { DB } from "@/database";
 
 // Dto
 import { CreatePostDto, UpdatePostDto } from "@/dtos/mongo/post.dto";
@@ -11,10 +12,12 @@ import {Result} from "@interfaces/result.interface";
 
 @Service()
 export class PostDao {
+  private readonly Post = DB.MONGO.Post;
+
   async findAll(): Promise<Result> {
     try {
       // createdAt을 기준으로 내림차순 조회
-      const postsResult = await Post.find().sort({ createdAt: -1 }).lean();
+      const postsResult = await this.Post.find().sort({ createdAt: -1 }).lean();
       if (!postsResult || postsResult.length === 0) {
         return { success: false, data: null }
       }
@@ -27,7 +30,7 @@ export class PostDao {
 
   async findOneById(id: string, session?: ClientSession): Promise<Result> {
     try {
-      let postQuery = Post.findById(id);
+      let postQuery = this.Post.findById(id);
 
       // session이 존재하는 경우
       if (session) {
@@ -48,7 +51,7 @@ export class PostDao {
 
   async findOneByIdCanSave(id: string): Promise<Result> {
     try {
-      const postResult = await Post.findById(id);
+      const postResult = await this.Post.findById(id);
       if (!postResult) {
         return { success: false, data: null }
       }
@@ -61,7 +64,7 @@ export class PostDao {
 
   async findOneByRecentNumber(): Promise<Result> {
     try {
-      const postResult = await Post.findOne().sort({ number: -1 }).lean();
+      const postResult = await this.Post.findOne().sort({ number: -1 }).lean();
 
       if (!postResult) {
         return { success: false, data: null }
@@ -75,7 +78,7 @@ export class PostDao {
 
   async createPost(createPostDto: CreatePostDto): Promise<Result> {
     try {
-      const createPostResult = await Post.create(createPostDto);
+      const createPostResult = await this.Post.create(createPostDto);
       if (!createPostResult) {
         return { success: false, data: null }
       }
@@ -88,7 +91,7 @@ export class PostDao {
 
   async updatePost(updatePostDto: UpdatePostDto, session?: ClientSession): Promise<Result> {
     try {
-      let updatePostQuery = Post.findByIdAndUpdate(updatePostDto.id, updatePostDto, { new: true });
+      let updatePostQuery = this.Post.findByIdAndUpdate(updatePostDto.id, updatePostDto, { new: true });
       // 트랜잭션이 존재하는 경우 session 추가
       if (session) {
         updatePostQuery = updatePostQuery.session(session);
@@ -108,7 +111,7 @@ export class PostDao {
 
   async deletePost(id: string): Promise<Result> {
     try {
-      const deletePostResult = await Post.findByIdAndDelete(id);
+      const deletePostResult = await this.Post.findByIdAndDelete(id);
       if (!deletePostResult) {
         return { success: false, data: null }
       }

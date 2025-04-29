@@ -1,9 +1,13 @@
-import mongoose, { Model, Schema } from "mongoose";
+/**
+ * Post Model
+ */
+
+import mongoose, { Schema, Model } from "mongoose";
 
 // Interface
-import { Post } from '@interfaces/post.interface';
+import { Post, PostDocument } from '@interfaces/post.interface';
 
-const postSchema: Schema<Post> = new Schema(
+const postSchema: Schema<PostDocument> = new Schema(
   {
     number: {
       type: Number,
@@ -48,6 +52,8 @@ const postSchema: Schema<Post> = new Schema(
   }
 );
 
-const Post: Model<Post> = mongoose.model<Post>("Post", postSchema);
+const Post: Model<PostDocument> = mongoose.model<PostDocument>("Post", postSchema);
 
-export default Post;
+export default function() {
+  return Post;
+}
