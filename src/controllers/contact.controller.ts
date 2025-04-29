@@ -5,7 +5,7 @@ import { validate } from "class-validator";
 import { HttpException } from "@exceptions/httpException";
 
 // DTO
-import {CreateContactDto, UpdateContactDto} from "@/dtos/contact.dto";
+import {CreateContactDto, UpdateContactDto} from "@/dtos/mongo/contact.dto";
 
 // Service
 import { ContactService } from "@services/contact.service";

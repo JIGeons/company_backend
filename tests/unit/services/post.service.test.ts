@@ -6,7 +6,7 @@ import 'reflect-metadata';
 import { describe } from "node:test";
 import { marked } from "marked";
 
-import { PostDao } from "@/daos/post.dao";
+import { PostDao } from "../../../src/daos/mongo/post.dao";
 import { PostService } from '@/services/post.service';
 
 // Interface

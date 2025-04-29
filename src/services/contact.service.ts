@@ -6,10 +6,10 @@ import { HttpException } from "@exceptions/httpException";
 import { Result } from "@interfaces/result.interface";
 
 // DTO
-import { CreateContactDto, UpdateContactDto } from "@/dtos/contact.dto";
+import { CreateContactDto, UpdateContactDto } from "@/dtos/mongo/contact.dto";
 
 // Dao
-import { ContactDao } from "@/daos/contact.dao";
+import { ContactDao } from "@/daos/mongo/contact.dao";
 
 @Service()
 export class ContactService {

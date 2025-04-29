@@ -5,7 +5,8 @@ import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import { PORT } from "@/config";
-import { MONGO_URI, MONGO_ROOT_USER, MONGO_ROOT_PASSWORD, MONGO_DATABASE, MONGO_URI_PORT } from '@/config';
+import { MONGO_ROOT_USER, MONGO_ROOT_PASSWORD, MONGO_DATABASE, MONGO_URI_PORT } from '@/config';
+import { connectToDatabases } from "@/database";
 import { initializeRedis } from "@config/redis";
 import { healthCheck } from "@utils/healthCheck";
 
@@ -26,7 +27,8 @@ export class App {
     this.app = express();
     this.port = PORT || 3000;
 
-    this.connectToDatabase();
+    // this.connectToDatabase();
+    connectToDatabases();
     this.initializeRedisEvents();
     this.initializeHealthCheck();
     this.initializeMiddlewares();

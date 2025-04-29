@@ -18,10 +18,10 @@ import { FileStorageServiceInterface } from "@interfaces/file.interface";
 import { S3FileStorageService } from "@services/file.service";
 
 // Dao
-import { PostDao } from "@/daos/post.dao";
+import { PostDao } from "@/daos/mongo/post.dao";
 
 // Dto
-import { CreatePostDto, UpdatePostDto } from "@/dtos/post.dto";
+import { CreatePostDto, UpdatePostDto } from "@/dtos/mongo/post.dto";
 
 // Utils
 import { getClientIp } from "@utils/getClientIp";
