@@ -48,19 +48,27 @@ jobs:
     #  환경변수 주입
     - name: Create .env.production
       run: |
+        echo "PORT=3001" >> .env.test
+        echo "HOST=127.0.0.1" >> .env.test
         echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env.test
         echo "SERVER_URI=http://127.0.0.1:3001" >> .env.test
+        
         echo "MONGO_URI=${{ secrets.MONGO_URI }}" >> .env.test
         echo "MONGO_ROOT_USER=test" >> .env.test
         echo "MONGO_ROOT_PASSWORD=test1234" >> .env.test
         echo "MONGO_DATABASE=abc-company" >> .env.test
         echo "MONGO_URI_PORT=127.0.0.1:27018" >> .env.test
+        
+        echo "MYSQL_URI_PORT=3306" >> .env.test
+        echo "MYSQL_USER=test" >> .env.test
+        echo "MYSQL_PASSWORD=test1234" >> .env.test
+        echo "MYSQL_DATABASE=abc-company-mysql" >> .env.test
+        
         echo "REDIS_URI=redis://127.0.0.1:6379" >> .env.test
         echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> .env.test
         echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> .env.test
         echo "AWS_BUCKET_NAME=${{ secrets.AWS_BUCKET_NAME }}" >> .env.test
         echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> .env.test
-        echo "PORT=3001" >> .env.test
         
 
     # redis 서버 실행
