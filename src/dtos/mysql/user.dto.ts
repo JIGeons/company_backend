@@ -53,7 +53,7 @@ export class UpdateUserDto {
 
   @IsOptional()
   @IsDate()
-  lastLoginAttempt?: number;
+  lastLoginDatetime?: number;
 
   @IsOptional()
   @IsString()

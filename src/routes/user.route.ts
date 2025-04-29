@@ -23,6 +23,6 @@ export class UserRoute implements Routes {
     this.router.post(`${this.path}/verify-token`, this.userController.verifyToken);
 
     // Delete
-    this.router.delete(`${this.path}/delete/:userId`, AuthMiddleware, this.userController.deleteUser);
+    this.router.delete(`${this.path}/delete/:id`, AuthMiddleware, this.userController.deleteUser);
   }
 }

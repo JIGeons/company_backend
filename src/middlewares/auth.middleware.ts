@@ -27,6 +27,7 @@ export const AuthMiddleware: RequestHandler = async (req: Request, res: Response
   } catch (error) {
     if (error instanceof TokenExpiredError) {
       console.log('auth TokenExpiredError');
+      return next(new HttpException(403, "유효기간이 만료된 토큰입니다."));
     } else if (error instanceof JsonWebTokenError) {
       console.log('JsonWebTokenError');
     } else if (error instanceof Error) {

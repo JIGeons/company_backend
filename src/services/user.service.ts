@@ -2,20 +2,24 @@ import { Service } from "typedi";
 import { HttpException } from "@exceptions/httpException";
 import bcrypt from "bcrypt";
 import axios from "axios";
+import { plainToInstance } from "class-transformer";
+import { validate } from "class-validator";
 
 // Interface
-import { AuthUser } from "@interfaces/user.interface";
+import {AuthUser, User} from "@interfaces/user.interface";
 import { Result } from "@interfaces/result.interface";
 
 // Dao
-import { UserDao } from "@/daos/user.dao";
+import { UserDao } from "@/daos/mysql/user.dao";
 
 // Dto
-import { CreateUserDto, UpdateUserDto } from "@/dtos/user.dto";
+import { CreateUserDto, UpdateUserDto } from "@/dtos/mysql/user.dto";
 
 // Redis
-import { storeToken } from "@config/redis";
-import {createJWTToken} from "@utils/jwt.util";
+import { storeToken, deleteToken } from "@config/redis";
+
+// Utils
+import { createJWTToken } from "@utils/jwt.util";
 
 @Service()
 export class UserService {
@@ -24,9 +28,18 @@ export class UserService {
     private readonly userDao : UserDao,
   ) {}
 
-  public async signup(username: string, password: string): Promise<Result> {
+  public async signup(createUserData: CreateUserDto): Promise<Result> {
+    // Create User 정보 유효성 검사
+    const createUserDto = plainToInstance(CreateUserDto, createUserData);
+    const userValidateError  = await validate(createUserDto);
+    if (userValidateError.length > 0) {
+      // 유효성 검사 실패 필드 반환
+      const errorField = userValidateError.map(validate => validate.property);
+      throw new HttpException(400, "잘못된 입력값입니다.", errorField);
+    }
+
     // User가 존재하는지 확인
-    const existingUser = await this.userDao.findByUsername(username);
+    const existingUser = await this.userDao.findByUserId(createUserDto.userId);
     if (existingUser.error) {
       throw new HttpException(500, existingUser.error);
     }
@@ -36,11 +49,11 @@ export class UserService {
 
     try {
       // 비밀번호 10진수 암호화
-      const hashedPassword = await bcrypt.hash(password, 10);
-      const createUser: CreateUserDto = { username, password: hashedPassword }
+      const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+      createUserDto.password = hashedPassword;
 
       // user 정보 생성
-      const createUserResult = await this.userDao.create(createUser);
+      const createUserResult = await this.userDao.create(createUserDto);
 
       return { success: true , data: createUserResult.data };
     } catch (error) {
@@ -48,8 +61,9 @@ export class UserService {
     }
   }
 
-  public async login(username: string, password: string): Promise<Result> {
-    const { success, data: user} = await this.userDao.findByUsernameWithPw(username);
+  public async login(userId: string, password: string): Promise<Result> {
+    const { success, data } = await this.userDao.findByUserIdWithPW(userId);
+    const user: UpdateUserDto = data;
     if (!success) {
       throw new HttpException(401, "사용자를 찾을 수 없습니다.");
     }
@@ -63,32 +77,37 @@ export class UserService {
       throw new HttpException(401, "이미 다른 기기에서 로그인이 되어있습니다.");
     }
 
-    // 암호화된 비밀번호가 동일한지 비교
-    const isValidPassword = await bcrypt.compare(password, user.password);
+    // @ts-ignore 암호화된 비밀번호가 동일한지 비교
+    const isValidPassword = bcrypt.compare(password, user.password);
     if (!isValidPassword) {
+      // @ts-ignore
       user.failedLoginAttempts += 1;
-      user.lastLoginAttempts = new Date();
+      // @ts-ignore
+      user.lastLoginDatetime = new Date();
 
-      // 비밀번호를 5회 이상 틀렸을 시 계정 잠금
+      // @ts-ignore 비밀번호를 5회 이상 틀렸을 시 계정 잠금
       if (user.failedLoginAttempts >= 5) {
         user.isActive = false;
-        await user.save();
+        await this.userDao.update(user);
         throw new HttpException(401, "비밀번호 5회 이상 틀려 계정이 비활성화 됩니다.");
       }
 
-      await user.save();
+      await this.userDao.update(user);
       return {
         success: false,
         error: "비밀번호가 일치하지 않습니다.",
+        // @ts-ignore
         data: { remainingAttempts: 5 - user.failedLoginAttempts },
       }
     }
 
     user.failedLoginAttempts = 0;
-    user.lastLoginAttempts = new Date();
+    // @ts-ignore
+    user.lastLoginDatetime = new Date();
     user.isLoggedIn = true;
 
     try {
+      // 로그인 요청 IP 조회
       const response = await axios.get("https://api.ipify.org?format=json");
       const ipAddress = response.data.ip; // 공인 ip
       user.ipAddress = ipAddress;
@@ -96,11 +115,14 @@ export class UserService {
       console.log("IP 주소를 가져오던 중 오류 발생: ", error);
     }
 
-    const userId = user._id.toString();
-    const userName = user.username;
-
-    // 토큰 생성
-    const token = await createJWTToken(userId, userName);
+    const authUser: AuthUser = {
+      id: user.id,
+      userId: user.userId,
+      // @ts-ignore
+      name: user.name,
+    }
+    // @ts-ignore 토큰 생성
+    const token = await createJWTToken(authUser);
 
     // Redis에 로그인 정보 저장 (자동 로그아웃 용)
     try {
@@ -110,12 +132,12 @@ export class UserService {
       console.log("Redis 로그인 정보 Store 실패: ", error);
     }
 
-    await user.save();
+    await this.userDao.update(user);
     return { success: true, data: { user: user, token: token } };
   }
 
-  public async logout (user: AuthUser): Promise<Result> {
-    const findUser = await this.userDao.findById(user.userId);
+  public async logout (user: AuthUser, token: string): Promise<Result> {
+    const findUser = await this.userDao.findById(user.id);
 
     // 에러가 존재하는 경우
     if (findUser.error) {
@@ -127,7 +149,7 @@ export class UserService {
     }
 
     // 로그인 유저 정보 update
-    const updateUserDto: UpdateUserDto = { id: findUser.data._id.toString(), isLoggedIn: false };
+    const updateUserDto: UpdateUserDto = { ...findUser.data, isLoggedIn: false };
     const updateUserResult = await this.userDao.update(updateUserDto);
 
     // 업데이트 도중 에러 발생
@@ -135,11 +157,14 @@ export class UserService {
       throw new HttpException(500, updateUserResult.error);
     }
 
+    // redis에서 토큰 삭제
+    await deleteToken(token);
+
     return { success: true, data: updateUserResult.data };
   }
 
-  public async deleteUser (userId: string): Promise<Result> {
-    const deleteUser = await this.userDao.delete(userId);
+  public async deleteUser (id: string): Promise<Result> {
+    const deleteUser = await this.userDao.delete(Number(id));
     // 삭제 시 오류가 난 경우
     if (deleteUser.error) {
       throw new HttpException(500, deleteUser.error);

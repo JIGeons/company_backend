@@ -15,14 +15,17 @@ import { AuthUser } from "@interfaces/user.interface";
 // Service
 import { UserService } from '@services/user.service';
 
+// Dto
+import { CreateUserDto } from "@/dtos/mysql/user.dto";
+
 export class UserController {
   private userService = Container.get(UserService);
 
   public signup = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { username, password } = req.body;
+      const createUserData: CreateUserDto = req.body;
 
-      const signupResult = await this.userService.signup(username, password);
+      const signupResult = await this.userService.signup(createUserData);
 
       res.status(201).json({ success: true, data: signupResult.data, message: "회원가입이 완료되었습니다." });
     } catch (error) {
@@ -32,9 +35,9 @@ export class UserController {
 
   public login = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { username, password } = req.body;
+      const { userId, password } = req.body;
 
-      const loginResult = await this.userService.login(username, password);
+      const loginResult = await this.userService.login(userId, password);
       if (!loginResult.success) {
         return next(new HttpException(400, "Invalid username or password"));
       }
@@ -60,6 +63,7 @@ export class UserController {
   public logout = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const user = req.user as AuthUser;
+      const token = req.cookies['token'];
 
       // 쿠키 초기화
       res.clearCookie('token', {
@@ -68,7 +72,7 @@ export class UserController {
         sameSite: 'strict',
       });
 
-      const logoutResult = await this.userService.logout(user);
+      const logoutResult = await this.userService.logout(user, token);
       // 로그아웃 실패 시
       if (!logoutResult.success) {
         return next(new HttpException(404, logoutResult.error));
@@ -83,9 +87,9 @@ export class UserController {
 
   public deleteUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { userId } = req.params;
+      const { id } = req.params;
 
-      const deleteResult = await this.userService.deleteUser(userId);
+      const deleteResult = await this.userService.deleteUser(id);
 
       // 삭제 실패 시
       if (!deleteResult.success) {

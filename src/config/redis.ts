@@ -43,5 +43,10 @@ export async function initializeRedis() {
 
 // 호이스팅이 되지 않는 메서드
 export const storeToken = async (userId: string, token: string) => {
-  await redisClient.set(`accessToken:${token}:session`, userId, { EX: EXPIRES });
+  await redisClient.set(`accessToken:${token}:session`, userId, { EX: EXPIRES - 60 });
+}
+
+// 저장된 Token 정보 삭제
+export const deleteToken = async (token: string) => {
+  await redisClient.del(`accessToken:${token}:session`);
 }
