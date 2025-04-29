@@ -29,6 +29,19 @@ services:
       - ./volume/mongo_data:/data/db
     restart: always
 
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-db
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: test1234
+      MYSQL_DATABASE: abc-company-mysql
+      MYSQL_USER: test
+      MYSQL_PASSWORD: test1234
+    volumes:
+      - ./volume/mysql_data:/var/lib/mysql
+
   redis:
     image: redis:7      # Redis 공식 이미지 사용
     container_name: redis-server

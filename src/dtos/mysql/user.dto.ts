@@ -3,7 +3,15 @@ import {IsBoolean, IsDate, IsNotEmpty, IsNumber, IsOptional, IsString} from 'cla
 export class CreateUserDto {
   @IsNotEmpty()
   @IsString()
-  username!: string;
+  userId!: string;
+
+  @IsNotEmpty()
+  @IsString()
+  email!: string;
+
+  @IsNotEmpty()
+  @IsString()
+  name!: string;
 
   @IsNotEmpty()
   @IsString()
@@ -13,11 +21,19 @@ export class CreateUserDto {
 export class UpdateUserDto {
   @IsNotEmpty()
   @IsString()
-  id!: string;
+  id!: number;
 
   @IsOptional()
   @IsString()
-  username?: string;
+  userId!: string;
+
+  @IsOptional()
+  @IsString()
+  email!: string;
+
+  @IsOptional()
+  @IsString()
+  name?: string;
 
   @IsOptional()
   @IsString()

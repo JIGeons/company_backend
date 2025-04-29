@@ -5,6 +5,7 @@
 import { NODE_ENV, UNIT_TEST } from "@/config";
 
 import { connectToMongoDB, MONGODB } from "@/database/mongo";
+import { connectToMysql, MYSQL } from "@database/mysql";
 
 export const connectToDatabases = async () => {
   if (NODE_ENV === 'test' && UNIT_TEST === 'true') {
@@ -14,8 +15,10 @@ export const connectToDatabases = async () => {
 
   // MongoDB, MySQL 연결
   await connectToMongoDB();
+  await connectToMysql();
 }
 
 export const DB = {
   MONGO: MONGODB,
+  MYSQL: MYSQL,
 }

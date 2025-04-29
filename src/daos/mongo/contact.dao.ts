@@ -5,13 +5,13 @@ import { Service } from "typedi";
 import { Types } from "mongoose";
 
 // Model
-import Contact from '@/database/mongo/models/contact.model';
+import Contact from '@database/mongo/models/contact.model';
 
 // Interface
 import { Result } from "@interfaces/result.interface";
 
 // DTO
-import { CreateContactDto } from "@/dtos/contact.dto";
+import { CreateContactDto } from "@/dtos/mongo/contact.dto";
 
 // enum
 import { ContactStatusEnum } from "@utils/enum";

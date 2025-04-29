@@ -2,11 +2,11 @@
  * Post Dao
  */
 import { Service } from "typedi";
-import Post from "@/database/mongo/models/post.model";
+import Post from "@database/mongo/models/post.model";
 import { ClientSession } from 'mongoose';
 
 // Dto
-import { CreatePostDto, UpdatePostDto } from "@/dtos/post.dto";
+import { CreatePostDto, UpdatePostDto } from "@/dtos/mongo/post.dto";
 import {Result} from "@interfaces/result.interface";
 
 @Service()
