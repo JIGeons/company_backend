@@ -18,11 +18,16 @@ export const connectToMongoDB = async () => {
 }
 
 // 모델 import
-
+import ContactModel from "@database/mongo/models/contact.model";
+import PostModel from "@database/mongo/models/post.model";
 
 // 모델 주입
-
+const Contact = ContactModel();
+const Post = PostModel();
 
 export const MONGODB = {
   mongoose,
+
+  Contact,
+  Post,
 };

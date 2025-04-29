@@ -1,8 +1,8 @@
 /**
  * Contact Interface
  */
-
 import { ContactStatusEnum } from '@utils/enum';
+import { Document } from "mongoose";
 
 // Contact 인터페이스 정의
 export interface Contact {
@@ -13,3 +13,6 @@ export interface Contact {
   status: ContactStatusEnum;
   createdAt: Date;
 }
+
+// ContactModel 인터페이스 정의
+export interface ContactDocument extends Contact, Document {}

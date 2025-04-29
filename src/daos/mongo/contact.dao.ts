@@ -3,9 +3,7 @@
  */
 import { Service } from "typedi";
 import { Types } from "mongoose";
-
-// Model
-import Contact from '@database/mongo/models/contact.model';
+import { DB } from "@/database";
 
 // Interface
 import { Result } from "@interfaces/result.interface";
@@ -18,9 +16,11 @@ import { ContactStatusEnum } from "@utils/enum";
 
 @Service()
 export class ContactDao {
+  private readonly Contact = DB.MONGO.Contact;
+
   async findAll(): Promise<Result> {
     try {
-      const contactAllResult = await Contact.find().sort({ createdAt: -1 }).lean();  // 최신순으로 조회
+      const contactAllResult = await this.Contact.find().sort({ createdAt: -1 }).lean();  // 최신순으로 조회
 
       if (!contactAllResult || contactAllResult.length === 0) {
         return { success: false, data:[] }
@@ -34,7 +34,7 @@ export class ContactDao {
 
   async findById(id: string | Types.ObjectId): Promise<Result> {
     try {
-      const contactResult = await Contact.findById(id);
+      const contactResult = await this.Contact.findById(id);
 
       if (!contactResult) {
         return { success: false, data:[] };
@@ -48,7 +48,7 @@ export class ContactDao {
 
   async create(contactData: CreateContactDto) {
     try {
-      const contact = await new Contact(contactData).save();
+      const contact = await new this.Contact(contactData).save();
 
       if (!contact) {
         return { success: false, data:[] };
@@ -62,7 +62,7 @@ export class ContactDao {
 
   async updateById(id: string, updateData: Partial<CreateContactDto>) {
     try {
-      const updateContactResult = await Contact.findByIdAndUpdate(id, updateData, { new: true }).lean();
+      const updateContactResult = await this.Contact.findByIdAndUpdate(id, updateData, { new: true }).lean();
 
       if (!updateContactResult) {
         return { success: false, data:[] };
@@ -76,7 +76,7 @@ export class ContactDao {
 
   async delete(id: string): Promise<Result> {
     try {
-      const deleteResult = await Contact.findByIdAndDelete(id);
+      const deleteResult = await this.Contact.findByIdAndDelete(id);
 
       if (!deleteResult) {
         return { success: false, data:[] };

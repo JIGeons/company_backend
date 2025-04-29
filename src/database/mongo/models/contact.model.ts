@@ -1,12 +1,12 @@
 import mongoose, { Schema, Model } from 'mongoose';
 
 // Interface
-import { Contact } from '@interfaces/contact.interface';
+import { Contact, ContactDocument } from '@interfaces/contact.interface';
 
 // Enum
 import { ContactStatusEnum } from '@utils/enum';
 
-const contactSchema: Schema<Contact> = new Schema(
+const contactSchema: Schema<ContactDocument> = new Schema(
   {
     name: {
       type: String,
@@ -43,6 +43,8 @@ const contactSchema: Schema<Contact> = new Schema(
 );
 
 // Contact 모델 생성
-const Contact: Model<Contact> = mongoose.model<Contact>("Contact", contactSchema);
+const Contact: Model<ContactDocument> = mongoose.model<ContactDocument>("Contact", contactSchema);
 
-export default Contact;
+export default function() {
+  return Contact;
+}
