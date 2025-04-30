@@ -7,7 +7,7 @@ import { HttpException } from "@exceptions/httpException";
 import jwt from "jsonwebtoken";
 
 // ENV
-import { NODE_ENV, JWT_SECRET, EXPIRES } from "@/config";
+import { NODE_ENV, ACCESS_SECRET, EXPIRES } from "@/config";
 
 // Interface
 import { AuthUser } from "@interfaces/user.interface";
@@ -51,10 +51,9 @@ export class UserController {
         maxAge: EXPIRES * 1000   // 쿠키의 만료 시간 설정
       });
 
-      const userWithoutPassword = resultData.user.toObject();  // mongoDB 객체를 일반 객체로 변환
-      delete userWithoutPassword.password;  // password 제거
+      delete resultData.user.password;  // password 제거
 
-      res.status(200).json({ message: "로그인 성공", user : userWithoutPassword });
+      res.status(200).json({ message: "로그인 성공", user : resultData.user });
     } catch (error) {
       next(error);
     }
@@ -112,10 +111,14 @@ export class UserController {
 
     // 토큰 유효성 확인
     try {
-      const decoded = jwt.verify(token, JWT_SECRET);
+      const decoded = jwt.verify(token, ACCESS_SECRET);
       res.status(200).json({ isValid: true, user: decoded }); // 인증된 토큰을 바탕으로 user 필드를 전송
     } catch (error) {
       res.status(401).json({ isValid: false, message: "유효하지 않은 토큰입니다." });
     }
+  }
+
+  public refreshToken = async (req: Request, res: Response) => {
+
   }
 }
