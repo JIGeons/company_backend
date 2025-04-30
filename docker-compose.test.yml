@@ -16,9 +16,25 @@ services:
     networks:
       - testnet   # 정의된 사용자 정의 네트워크 연결
 
+  mysql-test:
+    container_name: abc-mysql-test
+    image: mysql:8.0
+    ports:
+      - "3308:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: test1234
+      MYSQL_DATABASE: abc-company-mysql
+      MYSQL_USER: test
+      MYSQL_PASSWORD: test1234
+    volumes:
+      - mysql-test-data:/var/lib/mysql
+    networks:
+      - testnet   # 정의된 사용자 정의 네트워크 연결
+
 # 볼륨 정의 (데이터 파일이 이 로컬 볼륨에 저장됨)
 volumes:
   mongo-test-data:
+  mysql-test-data:
 
 
 # 사용자 정의 네트워크 정의 (서비스 간 통신을 위한 가상 네트워크)
