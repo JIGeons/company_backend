@@ -16,6 +16,9 @@ module.exports = {
     // 정규식: 확장자가 .ts또는 .tsx로 끝나는 파일을 ts-jest로 변환
   },
 
+  // 콘솔 출력
+  silent: false,
+
   // 테스트 커버리지 리포트를 생성
   collectCoverage: true,
   coverageDirectory: "coverage/",
@@ -27,12 +30,12 @@ module.exports = {
     "^@controllers/(.*)$": "<rootDir>/src/controllers/$1",
     "^@exceptions/(.*)$": "<rootDir>/src/exceptions/$1",
     "^@interfaces/(.*)$": "<rootDir>/src/interfaces/$1",
-    "^@services/(.*)$": "<rootDir>/src/services/$1",
     "^@middlewares/(.*)$": "<rootDir>/src/middlewares/$1",
     "^@config/(.*)$": "<rootDir>/src/config/$1",
-    "@database/*": "<rootDir>/src/database/$1",
-    "@models/*": "<rootDir>/src/database/models/$1",
-    "^@models/(.*)$": "<rootDir>/src/models/$1",
+    "^@database/(.*)$": "<rootDir>/src/database/$1",
+    "^@models/(.*)$": "<rootDir>/src/database/models/$1",
+    "^@routes/(.*)$": "<rootDir>/src/routes/$1",
+    "^@services/(.*)$": "<rootDir>/src/services/$1",
     "^@utils/(.*)$": "<rootDir>/src/utils/$1",
     "^@tests/(.*)$": "<rootDir>/tests/$1",
   }
