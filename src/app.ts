@@ -6,9 +6,10 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import { PORT } from "@/config";
 import { MONGO_ROOT_USER, MONGO_ROOT_PASSWORD, MONGO_DATABASE, MONGO_URI_PORT } from '@/config';
-import { connectToDatabases } from "@/database";
-import { initializeRedis } from "@config/redis";
+import { connectToDatabases, DB } from "@/database";
+import {initializeRedis, redisClient, redisSubscriber} from "@config/redis";
 import { healthCheck } from "@utils/healthCheck";
+import { Container } from "typedi";
 
 // Middleware
 import { ErrorMiddleware } from "@middlewares/error.middleware";
@@ -27,8 +28,6 @@ export class App {
     this.app = express();
     this.port = PORT || 3000;
 
-    // this.connectToDatabase();
-    connectToDatabases();
     this.initializeRedisEvents();
     this.initializeHealthCheck();
     this.initializeMiddlewares();
@@ -44,24 +43,23 @@ export class App {
     })
   }
 
-  public close(): void {
+  public async close(): Promise<void> {
     if (this.server) {
+      await mongoose.connection.close().then(() => {
+        console.log("몽고 DB 연결 종료");
+      });
+      await DB.MYSQL.MySQL.destroy().then(() => {
+        console.log("MySQL 연결 종료");
+      })
+      await redisClient.quit().then(() => {
+        console.log("Redis 연결 종료");
+      });
+      await redisSubscriber.quit().then(() => {
+        console.log("구독용 Redis 연결 종료");
+      });
+
       this.server.close();
     }
-  }
-
-  // 데이터베이스 연결
-  private async connectToDatabase() {
-    const mongoURI = `mongodb://${MONGO_ROOT_USER}:${MONGO_ROOT_PASSWORD}@${MONGO_URI_PORT}/${MONGO_DATABASE}?authSource=admin`;
-    console.log(`### MongoDB URI: `);
-    console.log(mongoURI);
-    console.log(MONGO_URI_PORT);
-    mongoose.connect(mongoURI)
-      .then(() => { console.log("Mongo DB 연결 성공.")})
-      .catch((error) => {
-        console.error('Mongo DB 연결 실패( error: ', error, ' )');
-        return ;
-      });
   }
 
   // Redis 연결 및 이벤트 설정
