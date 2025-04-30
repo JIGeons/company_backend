@@ -1,25 +1,32 @@
-import { Service } from "typedi";
-import { HttpException } from "@exceptions/httpException";
+/**
+ * User Service 계층
+ */
+
+import {Service} from "typedi";
+import {HttpException} from "@exceptions/httpException";
 import bcrypt from "bcrypt";
 import axios from "axios";
-import { plainToInstance } from "class-transformer";
-import { validate } from "class-validator";
-
-// Interface
-import {AuthUser, User} from "@interfaces/user.interface";
-import { Result } from "@interfaces/result.interface";
-
-// Dao
-import { UserDao } from "@/daos/mysql/user.dao";
-
-// Dto
-import { CreateUserDto, UpdateUserDto } from "@/dtos/mysql/user.dto";
-
-// Redis
-import { storeToken, deleteToken } from "@config/redis";
+import {plainToInstance} from "class-transformer";
+import {validate} from "class-validator";
+import {EXPIRES} from "@/config";
 
 // Utils
-import { createJWTToken } from "@utils/jwt.util";
+import {RedisStoreKeyActionEnum} from "@utils/enum";
+
+// Interface
+import {AuthUser} from "@interfaces/user.interface";
+import {Result} from "@interfaces/result.interface";
+
+// Service
+import {createAccessRefreshToken} from "@services/token.service";
+// Dao
+import {UserDao} from "@/daos/mysql/user.dao";
+
+// Dto
+import {CreateUserDto, UpdateUserDto} from "@/dtos/mysql/user.dto";
+
+// Redis
+import {deleteToRedis, storeToRedis} from "@config/redis";
 
 @Service()
 export class UserService {
@@ -118,26 +125,28 @@ export class UserService {
     const authUser: AuthUser = {
       id: user.id,
       userId: user.userId,
-      // @ts-ignore
-      name: user.name,
+      name: user.name!,
     }
-    // @ts-ignore 토큰 생성
-    const token = await createJWTToken(authUser);
+    // 토큰 생성
+    const { accessToken, refreshToken } = await createAccessRefreshToken(authUser);
 
     // Redis에 로그인 정보 저장 (자동 로그아웃 용)
     try {
-      await storeToken(userId, token);
+      const accessData = { accessToken: accessToken };
+      const refreshData = { refreshToken: refreshToken };
+      await storeToRedis(RedisStoreKeyActionEnum.LOGOUT, userId, accessData, EXPIRES);
+      await storeToRedis(RedisStoreKeyActionEnum.REFRESH, userId, refreshData, EXPIRES);
       console.log("Redis Store 성공");
     } catch (error) {
       console.log("Redis 로그인 정보 Store 실패: ", error);
     }
 
     await this.userDao.update(user);
-    return { success: true, data: { user: user, token: token } };
+    return { success: true, data: { user: user, accessToken: accessToken, refreshToken: refreshToken } };
   }
 
-  public async logout (user: AuthUser, token: string): Promise<Result> {
-    const findUser = await this.userDao.findById(user.id);
+  public async logout (user: AuthUser, accessToken: string): Promise<Result> {
+    const findUser = await this.userDao.findByUserId(user.userId);
 
     // 에러가 존재하는 경우
     if (findUser.error) {
@@ -157,8 +166,11 @@ export class UserService {
       throw new HttpException(500, updateUserResult.error);
     }
 
-    // redis에서 토큰 삭제
-    await deleteToken(token);
+    // redis에서 토큰 삭제 token이 keyname에 사용 되었으므로 token을 넘긴다.
+    const deleteAccessResult = await deleteToRedis(RedisStoreKeyActionEnum.LOGOUT, user.userId);
+    const deleteRefreshResult = await deleteToRedis(RedisStoreKeyActionEnum.REFRESH, user.userId);
+    console.log("delete Access Result: ", deleteAccessResult);
+    console.log("delete Refresh Result: ", deleteRefreshResult);
 
     return { success: true, data: updateUserResult.data };
   }

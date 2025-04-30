@@ -5,11 +5,9 @@ import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import { PORT } from "@/config";
-import { MONGO_ROOT_USER, MONGO_ROOT_PASSWORD, MONGO_DATABASE, MONGO_URI_PORT } from '@/config';
-import { connectToDatabases, DB } from "@/database";
-import {initializeRedis, redisClient, redisSubscriber} from "@config/redis";
+import { DB } from "@/database";
+import { initializeRedis, redisClient, redisSubscriber } from "@config/redis";
 import { healthCheck } from "@utils/healthCheck";
-import { Container } from "typedi";
 
 // Middleware
 import { ErrorMiddleware } from "@middlewares/error.middleware";

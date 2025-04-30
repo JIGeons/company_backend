@@ -7,6 +7,8 @@ import {REDIS_URI} from "@config/index";
 import {logoutHandler} from "@/listeners/logout.handler";
 import {RedisStoreKeyActionEnum} from "@utils/enum";
 import {Result} from "@interfaces/result.interface";
+import {AuthUser} from "@interfaces/user.interface";
+import {createAccessToken, createTemporaryAccessToken} from "@services/token.service";
 
 // 일반 명령용 클라이언트
 export const redisClient = createClient({ url: REDIS_URI });
@@ -60,13 +62,20 @@ const redisTTLEventHandler = async (redisSubscriber: any) => {
     const keyName = getKeyName(message);
     // Logout key가 TTL 만료된 경우 로그아웃 처리
     if (keyName.prefix === RedisStoreKeyActionEnum.LOGOUT && keyName.suffix === 'session') {
-      logoutHandler(keyName.key); // 로그아웃 처리
+      logoutRequestHandler(keyName.key);
     }
-    // if (message.startsWith(`${RedisStoreKeyActionEnum.LOGOUT}:`) && message.endsWith(':session')) {
-    //   const accessToken = message.split(':')[1];
-    //   logoutHandler(accessToken); // 로그아웃 처리
-    // }
   });
+}
+
+/**
+ * 자동 로그아웃 요청 User 토큰 임시 생성 및 자동 로그아웃 요청
+ * @param userId - User 모델의 userId
+ */
+const logoutRequestHandler = async (userId: string) => {
+  console.log(userId);
+  const authUser: AuthUser = { id: -1 , userId: userId, name: "auto-logout" };
+  const accessToken = await createTemporaryAccessToken(authUser);  // 자동 로그아웃용 Token 생성
+  logoutHandler(accessToken); // 로그아웃 처리
 }
 
 export const getDataToRedis = async (keyAction: RedisStoreKeyActionEnum, key: string): Promise<Result> => {

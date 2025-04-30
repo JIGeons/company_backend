@@ -13,7 +13,7 @@ export async function logoutHandler (accessToken: string) {
       {},
       {
         headers: {
-          Cookie: `token=${accessToken}`
+          Authorization: `Bearer ${accessToken}`,
         },
       });
 

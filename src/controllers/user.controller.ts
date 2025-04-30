@@ -44,16 +44,16 @@ export class UserController {
 
       const resultData = loginResult.data;
 
-      res.cookie('token', resultData.token, {
+      res.cookie('refreshToken', resultData.refreshToken, {
         httpOnly: true,               // 클라이언트(JavaScript)에서 해당 쿠키에 접근 할 수 없도록 설정
-        secure: NODE_ENV === 'prod',         // Https 연결에서만 쿠키를 전송하도록 설정 (서버가 운영환경에서만 Secure 옵션 활성화)
+        secure: NODE_ENV === 'prod',  // Https 연결에서만 쿠키를 전송하도록 설정 (서버가 운영환경에서만 Secure 옵션 활성화)
         sameSite: 'strict',           // 외부 사이트에서의 요청에 대해 쿠키를 전송하지 않도록 설정
-        maxAge: EXPIRES * 1000   // 쿠키의 만료 시간 설정
+        maxAge: EXPIRES * 1000        // 쿠키의 만료 시간 설정
       });
 
       delete resultData.user.password;  // password 제거
 
-      res.status(200).json({ message: "로그인 성공", user : resultData.user });
+      res.status(200).json({ message: "로그인 성공", user: resultData.user, accessToken: resultData.accessToken });
     } catch (error) {
       next(error);
     }
@@ -62,22 +62,22 @@ export class UserController {
   public logout = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const user = req.user as AuthUser;
-      const token = req.cookies['token'];
+      const accessToken = req.accessToken!;
 
-      // 쿠키 초기화
-      res.clearCookie('token', {
+      // 로그아웃 처리
+      const logoutResult = await this.userService.logout(user, accessToken);
+      if (!logoutResult.success) {
+        return next(new HttpException(404, logoutResult.error));
+      }
+
+      // 쿠키 삭제
+      res.clearCookie('refreshToken', {
         httpOnly: true,
         secure: NODE_ENV === 'production',
         sameSite: 'strict',
       });
 
-      const logoutResult = await this.userService.logout(user, token);
-      // 로그아웃 실패 시
-      if (!logoutResult.success) {
-        return next(new HttpException(404, logoutResult.error));
-      }
-
-      // 로그아웃 성공 시
+      // 응답 반환
       res.json({ success: true, message: "로그아웃 되었습니다." })
     } catch (error) {
       next(error);
