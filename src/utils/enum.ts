@@ -8,3 +8,14 @@ export enum FileTypeEnum {
   IMAGE = "IMAGE",
   FILE = "FILE",
 }
+
+export enum RedisStoreKeyActionEnum {
+  LOGOUT = "LOGOUT",
+  BLACKLIST = "BLACKLIST",
+  REFRESH = "REFRESH",
+}
+
+export enum TokenTypeEnum {
+  ACCESS = "ACCESS",
+  REFRESH = "REFRESH",
+}
