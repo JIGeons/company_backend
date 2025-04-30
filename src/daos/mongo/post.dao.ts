@@ -1,18 +1,23 @@
 /**
  * Post Dao
  */
-import { Service } from "typedi";
-import Post from "@database/mongo/models/post.model";
-import { ClientSession } from 'mongoose';
+import { Inject, Service } from "typedi";
+import {ClientSession, Model} from 'mongoose';
 import { DB } from "@/database";
 
 // Dto
 import { CreatePostDto, UpdatePostDto } from "@/dtos/mongo/post.dto";
-import {Result} from "@interfaces/result.interface";
+
+// Interface
+import { Result } from "@interfaces/result.interface";
+import { PostDocument } from "@interfaces/post.interface";
 
 @Service()
 export class PostDao {
-  private readonly Post = DB.MONGO.Post;
+  constructor(
+    @Inject("PostModel")
+    private readonly Post: Model<PostDocument>,
+  ) {}
 
   async findAll(): Promise<Result> {
     try {

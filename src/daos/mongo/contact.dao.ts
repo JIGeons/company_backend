@@ -1,12 +1,13 @@
 /**
  * contact.dao.ts
  */
-import { Service } from "typedi";
-import { Types } from "mongoose";
+import {  Inject, Service } from "typedi";
+import { Model, Types } from "mongoose";
 import { DB } from "@/database";
 
 // Interface
 import { Result } from "@interfaces/result.interface";
+import {ContactDocument} from "@interfaces/contact.interface";
 
 // DTO
 import { CreateContactDto } from "@/dtos/mongo/contact.dto";
@@ -16,7 +17,10 @@ import { ContactStatusEnum } from "@utils/enum";
 
 @Service()
 export class ContactDao {
-  private readonly Contact = DB.MONGO.Contact;
+  constructor(
+    @Inject("ContactModel")
+    private readonly Contact: Model<ContactDocument>
+  ) {}
 
   async findAll(): Promise<Result> {
     try {

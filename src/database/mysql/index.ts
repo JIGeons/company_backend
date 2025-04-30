@@ -18,7 +18,7 @@ const mysqlDataSource = new DataSource({
   password: MYSQL_PASSWORD,
   database: MYSQL_DATABASE,
   synchronize: true,
-  logging: true,
+  logging: false,
   entities: entities,
   subscribers: [],
   migrations: [],
@@ -40,5 +40,7 @@ import { UserRepository } from "@database/mysql/repository/user.repository";
 const User = UserRepository(mysqlDataSource);
 
 export const MYSQL = {
+  MySQL: mysqlDataSource,
+
   User
 }

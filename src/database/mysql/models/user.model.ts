@@ -22,19 +22,21 @@ export class UserModel {
   @Column({ select: false })
   password!: string;
 
-  @Column({ default: true })
+  // true - 로그인 상태, false - 로그아웃 상태
+  @Column({ default: false })
   isLoggedIn?: boolean;
 
+  // true - 활성화, false - 비활성화
   @Column({ default: true })
   isActive?: boolean;
 
   @Column({ default: 0 })
   failedLoginAttempts?: number;
 
-  @Column()
+  @Column({ nullable: true })
   lastLoginDatetime?: Date;
 
-  @Column()
+  @Column({ nullable: true })
   ipAddress?: string;
 
   @CreateDateColumn()
