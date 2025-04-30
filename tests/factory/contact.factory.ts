@@ -1,7 +1,7 @@
 /**
  * Contact Factory 파일
  */
-import Contact from '@/database/mongo/models/contact.model';
+import ContactModel from '@/database/mongo/models/contact.model';
 
 export const createContact = async (overrides = {}) => {
   const contactData = {
@@ -12,5 +12,6 @@ export const createContact = async (overrides = {}) => {
     ...overrides, // 사용자 정의 속성으로 덮어쓰기
   };
 
+  const Contact = ContactModel();
   return await Contact.create(contactData);
 }

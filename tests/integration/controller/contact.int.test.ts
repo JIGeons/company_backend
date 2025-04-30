@@ -5,40 +5,37 @@
 import request from "supertest";
 import mongoose from "mongoose";
 import { App } from '@/app';
+import { startTestServer } from "@tests/test-server";
 import { ContactRoute } from "@/routes/contact.route";
 import {describe} from "node:test";
 import jwt from "jsonwebtoken";
 
 // Model
-import Contact from '@/database/mongo/models/contact.model';
+import { DB } from '@/database';
+const Contact = DB.MONGO.Contact;
 
 // Factory
 import { createContact } from "@tests/factory/contact.factory";
 
-// ENV
-import { MONGO_URI, JWT_SECRET } from "@/config";
+// Interface
+import { AuthUser } from "@interfaces/user.interface";
 
-// beforeAll(async () => {
-//   await mongoose.connect(MONGO_URI || '');
-// });
-//
-// afterAll(async () => {
-//   await mongoose.connection.close();
-// });
+// ENV
+import { MONGO_URI, ACCESS_SECRET } from "@/config";
 
 describe('Contact 통합 테스트', () => {
   let app;
   let server: any;
   let jwtToken: string;
 
-  beforeAll(() => {
-    app = new App([new ContactRoute()]);
+  beforeAll(async () => {
+    app = await startTestServer([new ContactRoute()]);
     server = app['app'];  // 실제 Express 인스턴스
 
     // 테스트용 JWT 발급
-    const payload = { userId: 'testId', username: 'test@test.com' };
+    const payload: AuthUser = { id: 12345, userId: 'testId', name: 'test@test.com' };
     // @ts-ignore
-    jwtToken = jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' });
+    jwtToken = jwt.sign(payload, ACCESS_SECRET, { expiresIn: '1h' });
   });
 
   describe('GET /api/contact', () => {

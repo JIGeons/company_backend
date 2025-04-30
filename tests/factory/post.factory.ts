@@ -1,7 +1,7 @@
 /**
  * Post Factory 파일
  */
-import Post from '@/database/mongo/models/post.model';
+// import Post from '@/database/mongo/models/post.model';
 
 export const mockPost = {
   _id: "1234",

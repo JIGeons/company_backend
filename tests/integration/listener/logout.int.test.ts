@@ -5,22 +5,19 @@
 import request from "supertest";
 import mongoose from "mongoose";
 import { App } from "@/app";
+import { startTestServer } from "@tests/test-server";
 import { logoutHandler } from "@/listeners/logout.handler";
 import jwt from 'jsonwebtoken';
-
-
-// Database
-import { DB } from "@/database";
-const User = DB.MONGO.User;
+import { DB } from "@/database"
 
 // Routes
 import { UserRoute } from "@/routes/user.route";
 
 // Factory
-import { loggedInUser } from "@tests/factory/user.factory";
+import { createLoggedInUser } from "@tests/factory/user.factory";
 
 // ENV
-import {JWT_SECRET, MONGO_URI} from "@/config";
+import {ACCESS_SECRET, MONGO_URI} from "@/config";
 
 describe("Logout Handler 통합 테스트", () => {
   let app: App;
@@ -28,27 +25,29 @@ describe("Logout Handler 통합 테스트", () => {
   let jwtToken: string;
 
   jest.setTimeout(30000);
+  console.info("🔥 테스트에서 찍힌 로그입니다");
 
   beforeAll(async () => {
-    app = new App([new UserRoute()]);
-    app.listen(); // 테스트용 서버 포트 실행
+    // 테스트용 서버 실행
+    app = await startTestServer([new UserRoute()]);
+
+    console.info("app은? ", app);
+
+    const UserRepo = DB.MYSQL.User;
 
     // 테스트용 로그인 계성 생성
-    const loginResult = await loggedInUser();
+    const loginResult = await createLoggedInUser(UserRepo);
     await new Promise(res => setTimeout(res, 100)); // 약간 기다림 (DB write 안정화)
-    const check = await User.findById(loginResult._id);
-    console.log("DB에서 직접 찾은 유저:", check);
 
     // @ts-ignore 테스트용 JWT 발급
-    const payload = { userId: loginResult._id.toString(), username: loginResult.username };
+    const payload = { id: loginResult.id, userId: loginResult.userId, name: loginResult.username };
     console.log(payload);
     // @ts-ignore
-    jwtToken = jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' });
+    jwtToken = jwt.sign(payload, ACCESS_SECRET, { expiresIn: '1h' });
   });
 
   afterAll(async () => {
-    app.close();
-    await mongoose.connection.close();
+    await app.close();
   })
 
   it('정상적인 accessToken을 전달하면 로그아웃이 성공해야한다.', async () => {
