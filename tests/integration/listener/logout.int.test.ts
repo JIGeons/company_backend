@@ -25,14 +25,10 @@ describe("Logout Handler 통합 테스트", () => {
   let jwtToken: string;
 
   jest.setTimeout(30000);
-  console.info("🔥 테스트에서 찍힌 로그입니다");
 
   beforeAll(async () => {
     // 테스트용 서버 실행
     app = await startTestServer([new UserRoute()]);
-
-    console.info("app은? ", app);
-
     const UserRepo = DB.MYSQL.User;
 
     // 테스트용 로그인 계성 생성
@@ -40,7 +36,7 @@ describe("Logout Handler 통합 테스트", () => {
     await new Promise(res => setTimeout(res, 100)); // 약간 기다림 (DB write 안정화)
 
     // @ts-ignore 테스트용 JWT 발급
-    const payload = { id: loginResult.id, userId: loginResult.userId, name: loginResult.username };
+    const payload = { id: loginResult.id, userId: loginResult.userId, name: loginResult.name };
     console.log(payload);
     // @ts-ignore
     jwtToken = jwt.sign(payload, ACCESS_SECRET, { expiresIn: '1h' });

@@ -7,8 +7,10 @@ module.exports = {
   testEnvironment: "node",
   roots: ['<rootDir>/tests'], // Jest가 테스트를 찾을 디렉토리 목록. 기본값은 ["<rootDir>"].
   testMatch: [
-    // 테스트 파일 경로 패턴 지정: tests 디렉토리 내부의 모든 *.test.ts 파일만 테스트 대상으로 인식
-    '**/tests/**/*.test.ts'
+    // 테스트 파일 경로 패턴 지정:
+    // tests 디렉토리 내부 integration, unit만 테스트 지정
+    '**/tests/integration/**/*.test.ts',
+    '**/tests/unit/**/*.test.ts'
   ],
   transform: {
     // .ts 또는 .tsx 파일을 ts-jest를 이용해 반환
