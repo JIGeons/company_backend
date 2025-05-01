@@ -20,6 +20,7 @@ import { ApiLoggerMiddleware } from "@middlewares/apiLogger.middleware";
 
 // Interface
 import { Routes } from "@interfaces/routes.interface";
+import {initializeMailTransporter} from "@utils/mail.utils";
 
 export class App {
   public app: express.Application;
@@ -30,11 +31,12 @@ export class App {
     this.app = express();
     this.port = PORT || 3000;
 
-    this.initializeRedisEvents();
-    this.initializeHealthCheck();
-    this.initializeMiddlewares();
-    this.initializeRoutes(routes);
-    this.initializeErrorHandling();
+    initializeMailTransporter();    // 메일 Transport 생성 및 Container 등록
+    this.initializeRedisEvents();   // RedisClient 생성 및 이벤트 구독
+    this.initializeHealthCheck();   // healthCheck API 연결
+    this.initializeMiddlewares();   // 미들웨어 설정
+    this.initializeRoutes(routes);  // 라우터 연결
+    this.initializeErrorHandling(); // 에러 핸들러 연결
   }
 
   public listen() {

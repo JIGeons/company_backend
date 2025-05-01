@@ -1,7 +1,7 @@
 /**
  * Mail config 파일
  */
-import { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD } from "@config/index";
+import { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD, SMTP_SENDER_NAME, SMTP_SENDER_MAIL } from "@config/index";
 
 /**
  * SMTP 메일 서버 구성 설정 객체
@@ -13,5 +13,7 @@ export const mailConfig = {
   auth: {                     // 인증 정보: 메일 서버 로그인 계정
     user: SMTP_USER,          // SMTP 로그인 계정 (발신자 이메일 주소)
     pass: SMTP_PASSWORD,      // SMTP 로그인 비밀번호 (일반 비밀번호 or 앱 비밀번호)
-  }
+  },
+  senderName: SMTP_SENDER_NAME,
+  senderEmail: SMTP_SENDER_MAIL,
 }
