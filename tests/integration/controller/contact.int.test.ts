@@ -57,7 +57,7 @@ describe('Contact 통합 테스트', () => {
 
       const res = await request(server)
         .get('/api/contact')
-        .set('Cookie', [`token=${jwtToken}`]);  // 쿠키로 jwt 토큰 전달
+        .set('Authorization', `Bearer ${jwtToken}`);  // 헤더로 jwt 토큰 전달
 
       expect(res.statusCode).toBe(200);
       expect(res.body.success).toBe(true);
@@ -69,7 +69,7 @@ describe('Contact 통합 테스트', () => {
     it('GET /api/contact - 인증된 사용자 & 조회 내용 없음', async () => {
       const res = await request(server)
         .get('/api/contact')
-        .set('Cookie', [`token=${jwtToken}`]);  // 쿠키로 jwt 토큰 전달
+        .set('Authorization', `Bearer ${jwtToken}`);  // 헤더로 jwt 토큰 전달
 
       expect(res.statusCode).toBe(404);
       expect(res.body.success).toBe(false);
