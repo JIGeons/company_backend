@@ -93,6 +93,17 @@ export const EXPIRES = 6 * 60 * 60;   // 6시간
 | `AWS_BUCKET_NAME` | S3 버킷명 |
 | `AWS_REGION` | S3 버킷 리전 |
 
+📧 SMTP - 메일 설정
+
+| 변수 | 설명 |
+| --- | --- |
+| `SMTP_HOST` | SMTP 서버 호스트 (예: `smtp.naver.com`) |
+| `SMTP_PORT` | 포트 번호 (465: SSL, 587: TLS) |
+| `SMTP_USER` | 발신자 이메일 계정 |
+| `SMTP_PASSWORD` | SMTP 로그인 비밀번호 |
+| `SMTP_SENDER_NAME` | 발신자 이름 (메일 상 표시) |
+| `SMTP_SENDER_MAIL` | 발신자 이메일 주소 |
+
 ---
 
 ### 🛠️ 사용 예시
@@ -106,9 +117,9 @@ console.log(`[INFO] Redis URI: ${REDIS_URI}`);
 
 ---
 
-`.env` 파일 구성 예시
+### `.env` 파일 구성 예시
 
-```tsx
+```env
 # 실행 환경
 NODE_ENV=development
 PORT=3000
@@ -142,4 +153,12 @@ AWS_ACCESS_KEY_ID=your-access-key
 AWS_SECRET_ACCESS_KEY=your-secret-key
 AWS_BUCKET_NAME=my-bucket
 AWS_REGION=ap-northeast-2
+
+# SMTP
+SMTP_HOST=smtp.naver.com
+SMTP_PORT=587
+SMTP_USER=myemail
+SMTP_PASSWORD=mailpassword
+SMTP_SENDER_NAME=ABC-Company
+SMTP_SENDER_MAIL=myemail@naver.com
 ```
