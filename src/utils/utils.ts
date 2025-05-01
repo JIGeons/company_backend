@@ -1,29 +1,6 @@
 /**
- * Utils.ts
+ * utils.ts
  */
-import { Request } from "express";
-import requestIp from 'request-ip';
-// interface
-import { Result } from "@interfaces/result.interface";
-
-/**
- * API 요청자의 IP를 조회하는 메서드
- */
-export async function getRequestHostIP (req: Request) {
-  const result:Result = { success: false, data: null };
-  try {
-    // 클라이언트의 IP 조회
-    const clientIp = requestIp.getClientIp(req);
-
-    result.success = true;
-    result.data = { ip: clientIp };
-  } catch (error) {
-    console.error("요청 IP 조회 실패: ", String(error));
-    result.error = error instanceof Error ? error.message : String(error);
-  }
-
-  return result;
-}
 
 /**
  * 인증 코드를 발생하는 메서드
@@ -68,3 +45,20 @@ function shuffleString(str: string): string {
   return arr.join('');
 }
 
+/**
+ * Date객체를 yyyy-MM-dd am/pm HH:mm:ss 형식으로 변환하는 메서드
+ * @param dateTime
+ */
+export function formatDateToDateAMPM(dateTime: Date): string {
+  const stringDate = dateTime.toISOString();
+  const [date, time] = stringDate.split('T');
+  const [hour, minute, second] = time.split(':');
+
+  let numberHour = Number(hour);
+  const ampm = numberHour < 12 ? 'am' : 'pm';
+  if (numberHour != 12) { // 오후 12시를 제외한 나머지 시간은 12의 나머지로 사용한다.
+    numberHour = numberHour % 12;
+  }
+
+  return `${date} ${ampm} ${String(numberHour).padStart(2, '0')}:${minute}:${second}`;
+}

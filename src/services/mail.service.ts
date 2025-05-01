@@ -3,17 +3,19 @@
  */
 import { Inject, Service } from 'typedi';
 import { Transporter } from "nodemailer";
-import ejs from 'ejs';
-import path from "path";
+
+// config
+import { SERVER_URI } from "@/config";
 import { mailConfig } from "@config/mail.config";
 
 // interface
 import { MailOptions } from "@interfaces/mail.interface";
 import { Result } from "@interfaces/result.interface";
 import { User } from "@interfaces/user.interface";
-import { generateVerificationCode } from "@utils/utils";
-import {SERVER_URI} from "@/config";
-import * as fs from "node:fs";
+
+// Utils
+import { renderMailTemplate } from "@utils/mail.util";
+import { formatDateToDateAMPM, generateVerificationCode } from "@utils/utils";
 
 /**
  * 메일 서비스 Class
@@ -73,11 +75,9 @@ export class MailService {
     const receiver = userInfo.email;
     const subject = `[ABC-Company] ${userInfo.name}님 계정으로 비정상 접근이 감지되었습니다.`;
 
-    // AbnormalAccess.template.ejs 파일을 읽어온다.
-    const abnormalAccessFile = fs.readFileSync("./src/templates/abnormalAccess.template.ejs", 'utf8');
-    // ejs 파일 렌더링
-    const sendMailContent = ejs.render(abnormalAccessFile, {
-      formattedTime: new Date().toISOString(),
+    // AbnormalAccess 템플릿을 렌더링한다.
+    const sendMailContent = await renderMailTemplate("abnormalAccess", {
+      formattedTime: formatDateToDateAMPM(new Date()),
       ipAddress: clientIp || "IP 알 수 없음",
       verificationUrl: verificationUrl,
     });

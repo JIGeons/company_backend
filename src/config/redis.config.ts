@@ -1,4 +1,5 @@
 /**
+ * redis.config.ts
  * Redis 연결 및 이벤트 처리 구독 설정 파일
  */
 

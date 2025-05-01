@@ -2,6 +2,8 @@
  * Mail config 파일
  */
 import { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD, SMTP_SENDER_NAME, SMTP_SENDER_MAIL } from "@config/index";
+import nodemailer from 'nodemailer';
+import { Container } from "typedi";
 
 /**
  * SMTP 메일 서버 구성 설정 객체
@@ -16,4 +18,19 @@ export const mailConfig = {
   },
   senderName: SMTP_SENDER_NAME,
   senderEmail: SMTP_SENDER_MAIL,
+}
+
+/**
+ * SMTP 서버 연결, SMTP 객체 생성 및 의존성 추가
+ */
+export function createMailTransporter() {
+  const mailTransporter = nodemailer.createTransport({
+    ...mailConfig,
+    pool: true,
+    maxConnections: 5,
+    maxMessages: 100,
+  });
+
+  Container.set("mailTransporter", mailTransporter);
+  console.log("SMTP 연결 완료");
 }
