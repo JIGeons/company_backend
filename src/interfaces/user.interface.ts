@@ -17,10 +17,15 @@ export interface User {
   createdAt?: Date;
 }
 
+export interface AuthHeader {
+  iat: number;
+  exp: number;
+}
+
 export interface AuthUser {
   id: number;
   userId: string;
   name: string;
-  iat: number;
-  exp: number;
 }
+
+export interface userTokenInfo extends AuthHeader, AuthUser {}

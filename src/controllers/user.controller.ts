@@ -17,6 +17,7 @@ import { UserService } from '@services/user.service';
 
 // Dto
 import { CreateUserDto } from "@/dtos/mysql/user.dto";
+import {Result} from "@interfaces/result.interface";
 
 export class UserController {
   private userService = Container.get(UserService);
@@ -102,7 +103,7 @@ export class UserController {
   }
 
   public verifyToken = async (req: Request, res: Response) => {
-    const token = req.cookies.token;
+    const token = req.accessToken!;
 
     if (!token) {
       res.status(400).json({ isValid: false, message: "토큰이 유효하지 않습니다."});
@@ -118,7 +119,28 @@ export class UserController {
     }
   }
 
-  public refreshToken = async (req: Request, res: Response) => {
+  public reissueTokens = async (req: Request, res: Response, next: NextFunction) => {
+    const authUser = req.user as AuthUser;
+    const refreshToken = req.refreshToken!;
 
+    try {
+      // 새로운 토큰 발행
+      const reissueTokenResult = await this.userService.reissueAccessToken(authUser, refreshToken);
+      if (!reissueTokenResult.success) {
+        return next(new HttpException(404, reissueTokenResult.error));
+      }
+
+      const tokens = reissueTokenResult.data;
+      res.cookie('refreshToken', tokens.refreshToken, {
+        httpOnly: true,               // 클라이언트(JavaScript)에서 해당 쿠키에 접근 할 수 없도록 설정
+        secure: NODE_ENV === 'prod',  // Https 연결에서만 쿠키를 전송하도록 설정 (서버가 운영환경에서만 Secure 옵션 활성화)
+        sameSite: 'strict',           // 외부 사이트에서의 요청에 대해 쿠키를 전송하지 않도록 설정
+        maxAge: EXPIRES * 1000        // 쿠키의 만료 시간 설정
+      });
+
+      res.status(200).json({ message: "새로운 토큰을 발행하였습니다.", accessToken: tokens.accessToken });
+    } catch (error) {
+      next(error);
+    }
   }
 }

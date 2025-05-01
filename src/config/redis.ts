@@ -82,14 +82,20 @@ export const getDataToRedis = async (keyAction: RedisStoreKeyActionEnum, key: st
   const keyName = createKeyName(keyAction, key);
   const result:Result = { success: false, data: null };
 
-  const redisResult = await redisClient.get(keyName);
-  if (!redisResult) return result;
+  try {
+    const redisResult = await redisClient.get(keyName);
+    if (!redisResult) return result;
 
-  // redis에서 데이터 조회에 성공한 경우
-  result.success = true;
-  result.data = JSON.parse(redisResult);
+    // redis에서 데이터 조회에 성공한 경우
+    result.success = true;
+    result.data = JSON.parse(redisResult);
 
-  return result;
+    return result;
+  } catch (error) {
+    console.log("Redis 조회 실패 (서버에러, status: 500)");
+    result.error = error instanceof Error ? error.message : String(error);
+    return result;
+  }
 }
 
 // Redis에 데이터 저장 (호이스팅이 되지 않는 메서드)

@@ -5,7 +5,7 @@ import jwt, { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
 import { ACCESS_SECRET } from "@/config";
 
 // Service
-import { verifyToken } from "@services/token.service";
+import {getTokenToBlackList, verifyToken} from "@services/token.service";
 
 // Interface
 import { AuthUser } from '@interfaces/user.interface';
@@ -13,6 +13,13 @@ import { AuthUser } from '@interfaces/user.interface';
 import { HttpException } from "@exceptions/httpException";
 import { TokenTypeEnum } from "@utils/enum";
 
+/**
+ * 사용자 인증 미들웨어
+ * @param req
+ * @param res
+ * @param next
+ * @constructor
+ */
 export const AuthMiddleware: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
   const path = req.path;
@@ -33,6 +40,13 @@ export const AuthMiddleware: RequestHandler = async (req: Request, res: Response
   const accessToken = authHeader.split(' ')[1];
   req.accessToken = accessToken;  // request에 accessToken 저장
 
+  // BlackList에서 AccessToken 검사
+  const blackListResult = await getTokenToBlackList(accessToken);
+  // BlackList에 토큰이 존재하는 경우 접근 불가 응답 반환.
+  if (!blackListResult.success) {
+    return next(new HttpException(403, blackListResult.error));
+  }
+
   // 토큰 유효성 검사
   const tokenVerifyResult = await verifyToken(accessToken, TokenTypeEnum.ACCESS);
   if (!tokenVerifyResult.success) {
@@ -44,17 +58,25 @@ export const AuthMiddleware: RequestHandler = async (req: Request, res: Response
   next();
 };
 
+/**
+ * AccessToken 재발급 시 Refresh 토큰 검증하는 미들웨어
+ * @param req
+ * @param res
+ * @param next
+ * @constructor
+ */
 export const RefreshTokenMiddleware: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
   const refreshToken = req.cookies['refreshToken'];
 
   if (!refreshToken) {
-    return next(new HttpException(401, "토큰이 존재하지 않습니다."));
+    return next(new HttpException(401, "refresh 토큰이 존재하지 않습니다."));
   }
 
-  const { success, authUser, code, message } = await verifyToken(refreshToken, "REFRESH");
-  if (!success)
-    return next(new HttpException(code, message));
+  // refreshToken 유효성 검사
+  const { success, authUser, code, message } = await verifyToken(refreshToken, TokenTypeEnum.REFRESH);
+  if (!success) return next(new HttpException(code, message));
 
   req.user = authUser as AuthUser;
+  req.refreshToken = refreshToken;
   next();
 }

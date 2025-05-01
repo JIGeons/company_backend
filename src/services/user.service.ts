@@ -8,7 +8,6 @@ import bcrypt from "bcrypt";
 import axios from "axios";
 import {plainToInstance} from "class-transformer";
 import {validate} from "class-validator";
-import {EXPIRES} from "@/config";
 
 // Utils
 import {RedisStoreKeyActionEnum} from "@utils/enum";
@@ -18,7 +17,12 @@ import {AuthUser} from "@interfaces/user.interface";
 import {Result} from "@interfaces/result.interface";
 
 // Service
-import {createAccessRefreshToken} from "@services/token.service";
+import {
+  createAccessRefreshToken,
+  deleteTokenToRedis,
+  storeBlackListToken,
+  storeTokenToRedis
+} from "@services/token.service";
 // Dao
 import {UserDao} from "@/daos/mysql/user.dao";
 
@@ -26,7 +30,7 @@ import {UserDao} from "@/daos/mysql/user.dao";
 import {CreateUserDto, UpdateUserDto} from "@/dtos/mysql/user.dto";
 
 // Redis
-import {deleteToRedis, storeToRedis} from "@config/redis";
+import {getDataToRedis} from "@config/redis";
 
 @Service()
 export class UserService {
@@ -35,6 +39,10 @@ export class UserService {
     private readonly userDao : UserDao,
   ) {}
 
+  /**
+   * 회원가입 서비스
+   * @param createUserData
+   */
   public async signup(createUserData: CreateUserDto): Promise<Result> {
     // Create User 정보 유효성 검사
     const createUserDto = plainToInstance(CreateUserDto, createUserData);
@@ -68,6 +76,11 @@ export class UserService {
     }
   }
 
+  /**
+   * 로그인 서비스
+   * @param userId
+   * @param password
+   */
   public async login(userId: string, password: string): Promise<Result> {
     const { success, data } = await this.userDao.findByUserIdWithPW(userId);
     const user: UpdateUserDto = data;
@@ -131,20 +144,20 @@ export class UserService {
     const { accessToken, refreshToken } = await createAccessRefreshToken(authUser);
 
     // Redis에 로그인 정보 저장 (자동 로그아웃 용)
-    try {
-      const accessData = { accessToken: accessToken };
-      const refreshData = { refreshToken: refreshToken };
-      await storeToRedis(RedisStoreKeyActionEnum.LOGOUT, userId, accessData, EXPIRES);
-      await storeToRedis(RedisStoreKeyActionEnum.REFRESH, userId, refreshData, EXPIRES);
-      console.log("Redis Store 성공");
-    } catch (error) {
-      console.log("Redis 로그인 정보 Store 실패: ", error);
+    const storeResult = await storeTokenToRedis(userId, accessToken, refreshToken);
+    if (!storeResult.success) {
+      console.log("Redis 저장 실패: ", storeResult.error);
     }
 
     await this.userDao.update(user);
     return { success: true, data: { user: user, accessToken: accessToken, refreshToken: refreshToken } };
   }
 
+  /**
+   * 로그아웃 서비스
+   * @param user
+   * @param accessToken
+   */
   public async logout (user: AuthUser, accessToken: string): Promise<Result> {
     const findUser = await this.userDao.findByUserId(user.userId);
 
@@ -166,15 +179,21 @@ export class UserService {
       throw new HttpException(500, updateUserResult.error);
     }
 
-    // redis에서 토큰 삭제 token이 keyname에 사용 되었으므로 token을 넘긴다.
-    const deleteAccessResult = await deleteToRedis(RedisStoreKeyActionEnum.LOGOUT, user.userId);
-    const deleteRefreshResult = await deleteToRedis(RedisStoreKeyActionEnum.REFRESH, user.userId);
-    console.log("delete Access Result: ", deleteAccessResult);
-    console.log("delete Refresh Result: ", deleteRefreshResult);
+    // accessToken을 blackList에 등록 ( id == -1 은 임시토큰이므로 블랙리스트 등록 X )
+    if (user.id !== -1) {
+      const storeBlackResult = await storeBlackListToken(accessToken);
+    }
+
+    // redis에서 AccessToken, RefreshToken 삭제
+    const deleteTokenResult = await deleteTokenToRedis(user.userId);
 
     return { success: true, data: updateUserResult.data };
   }
 
+  /**
+   * 유저 삭제 서비스
+   * @param id
+   */
   public async deleteUser (id: string): Promise<Result> {
     const deleteUser = await this.userDao.delete(Number(id));
     // 삭제 시 오류가 난 경우
@@ -188,5 +207,47 @@ export class UserService {
 
     // 삭제에 성공한 경우
     return { success: true, data: deleteUser.data };
+  }
+
+  /**
+   * AccessToken 만료 시 RefreshToken을 사용하여 AccessToken을 재발급 하는 메서드
+   * @param authUser
+   * @param refreshToken
+   */
+  public async reissueAccessToken (authUser: AuthUser, refreshToken: string): Promise<Result> {
+    const result: Result = { success: false, data: null };
+
+    console.log("authUser", authUser);
+
+    // redis에서 refreshToken 조회
+    const getRefreshToken = await getDataToRedis(RedisStoreKeyActionEnum.REFRESH, authUser.userId);
+    if (getRefreshToken.error) {
+      throw new HttpException(500, getRefreshToken.error);
+    }
+
+    if (!getRefreshToken.success) {
+      result.error = "Refresh Token이 존재하지 않습니다. AccessToken을 재발급할 수 없습니다.";
+      return result;
+    }
+
+    // redis에 저장된 refresh 토큰과 cookie의 refresh 토큰을 비교
+    const getTokenResult = getRefreshToken.data;
+    if (refreshToken !== getTokenResult.refreshToken) {
+      throw new HttpException(403, "비정상적인 접근입니다.");
+    }
+
+    // token 새로 생성 및 redis에 저장
+    const { accessToken: newAccessToken, refreshToken: newRefreshToken } = await createAccessRefreshToken(authUser);
+    const storeTokenResult = await storeTokenToRedis(authUser.userId, newAccessToken, newRefreshToken);
+    if (storeTokenResult.error) {
+      throw new HttpException(500, storeTokenResult.error);
+    }
+
+    result.success = true;
+    result.data = {
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken,
+    }
+    return result;
   }
 }
