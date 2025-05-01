@@ -24,6 +24,8 @@ export const AuthMiddleware: RequestHandler = async (req: Request, res: Response
   const authHeader = req.headers.authorization;
   const path = req.path;
 
+  console.log(authHeader);
+
   // 토큰이 존재하지 않는 경우
   if (!authHeader) {
     if (path.includes("/logout")) {
@@ -67,9 +69,17 @@ export const AuthMiddleware: RequestHandler = async (req: Request, res: Response
  */
 export const RefreshTokenMiddleware: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
   const refreshToken = req.cookies['refreshToken'];
+  const accessHeader = req.headers.authorization;
 
-  if (!refreshToken) {
-    return next(new HttpException(401, "refresh 토큰이 존재하지 않습니다."));
+  if (!refreshToken || !accessHeader) {
+    return next(new HttpException(401, "access 또는 refresh 토큰이 존재하지 않습니다."));
+  }
+
+  const accessToken = accessHeader.split(' ')[1];
+  const accessVerifyResult = await verifyToken(accessToken, TokenTypeEnum.ACCESS);
+  // accessToken이 만료된 상태가 아닌 경우에 return
+  if (accessVerifyResult.code !== 401) {
+    return next(new HttpException(403, "accessToken이 재발급 받을 수 있는 상태가 아닙니다."));
   }
 
   // refreshToken 유효성 검사

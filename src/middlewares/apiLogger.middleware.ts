@@ -5,6 +5,11 @@
 import { Request, Response, NextFunction } from 'express';
 
 export const ApiLoggerMiddleware = (req: Request, res: Response, next: NextFunction) => {
+  if (req.method === "OPTIONS") {
+    res.status(204).send();
+    return ;
+  }
+
   const startTime = Date.now();   // 요청 시작 시간
 
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);

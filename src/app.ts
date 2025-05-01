@@ -1,3 +1,7 @@
+/**
+ * App.ts
+ */
+
 import 'reflect-metadata';
 import express from "express";
 import mongoose from "mongoose";
@@ -67,16 +71,16 @@ export class App {
 
   // 미들웨어 관련 설정
   private initializeMiddlewares() {
-    this.app.use(express.json());
-    this.app.use(express.urlencoded({extended: false}));
-    this.app.use(cookieParser());
-    this.app.use(ApiLoggerMiddleware);
-
     // cors 설정
     this.app.use(cors({
       origin: 'http://localhost:5173', // frontURL 주소 cors 허용
       credentials: true,  // 쿠키 허용
     }));
+
+    this.app.use(express.json());
+    this.app.use(express.urlencoded({extended: false}));
+    this.app.use(cookieParser());
+    this.app.use(ApiLoggerMiddleware);
   }
 
   private initializeHealthCheck() {

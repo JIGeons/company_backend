@@ -20,7 +20,7 @@ export class UserRoute implements Routes {
     this.router.post(`${this.path}/signup`, this.userController.signup);
     this.router.post(`${this.path}/login`, this.userController.login);
     this.router.post(`${this.path}/logout`, AuthMiddleware, this.userController.logout);
-    this.router.post(`${this.path}/verify-token`, this.userController.verifyToken);
+    this.router.post(`${this.path}/verify-token`, AuthMiddleware, this.userController.verifyToken);
     this.router.post(`${this.path}/refresh-token`, RefreshTokenMiddleware, this.userController.reissueTokens);
 
     // Delete
