@@ -34,6 +34,17 @@ jobs:
           MONGO_INITDB_DATABASE: abc-company
         ports:
           - 27018:27017
+
+      mysql:
+        image: mysql
+        env:
+          MYSQL_ROOT_PASSWORD: test1234
+          MYSQL_DATABASE: abc-company-mysql
+          MYSQL_USER: test
+          MYSQL_PASSWORD: test1234
+        ports:
+          - 3306:3306
+
     # 버전 매트릭스 전력
     strategy:
       matrix:
