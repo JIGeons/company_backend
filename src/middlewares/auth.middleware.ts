@@ -78,6 +78,9 @@ export const RefreshTokenMiddleware: RequestHandler = async (req: Request, res: 
   const accessToken = accessHeader.split(' ')[1];
   const accessVerifyResult = await verifyToken(accessToken, TokenTypeEnum.ACCESS);
   // accessToken이 만료된 상태가 아닌 경우에 return
+  if (accessVerifyResult.success) {
+    return next(new HttpException(403, "accessToken이 아직 유효하여 재발급이 불가능합니다."));
+  }
   if (accessVerifyResult.code !== 401) {
     return next(new HttpException(403, "accessToken이 재발급 받을 수 있는 상태가 아닙니다."));
   }
