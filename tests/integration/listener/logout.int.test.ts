@@ -2,8 +2,6 @@
  * Logout Handler 통합 테스트
  */
 
-import request from "supertest";
-import mongoose from "mongoose";
 import { App } from "@/app";
 import { DIContainerSet, startTestServer } from "@tests/test-server";
 import { logoutHandler } from "@/listeners/logout.handler";
@@ -17,7 +15,7 @@ import { UserRoute } from "@/routes/user.route";
 import { createLoggedInUser } from "@tests/factory/user.factory";
 
 // ENV
-import {ACCESS_SECRET, MONGO_URI} from "@/config";
+import { ACCESS_SECRET } from "@/config";
 
 describe("Logout Handler 통합 테스트", () => {
   let app: App;
