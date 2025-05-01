@@ -5,7 +5,7 @@
 import request from "supertest";
 import mongoose from "mongoose";
 import { App } from "@/app";
-import { startTestServer } from "@tests/test-server";
+import {DIContainerSet, startTestServer} from "@tests/test-server";
 import { logoutHandler } from "@/listeners/logout.handler";
 import jwt from 'jsonwebtoken';
 import { DB } from "@/database"
@@ -27,6 +27,10 @@ describe("Logout Handler 통합 테스트", () => {
   jest.setTimeout(30000);
 
   beforeAll(async () => {
+
+    // 서버 실행 전 의존성 등록
+    await DIContainerSet();
+
     // 테스트용 서버 실행
     app = await startTestServer([new UserRoute()]);
     const UserRepo = DB.MYSQL.User;
