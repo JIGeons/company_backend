@@ -23,6 +23,8 @@ import {
   storeBlackListToken,
   storeTokenToRedis
 } from "@services/token.service";
+import { MailService } from "@services/mail.service";
+
 // Dao
 import { UserDao } from "@/daos/mysql/user.dao";
 
@@ -31,12 +33,14 @@ import { CreateUserDto, UpdateUserDto } from "@/dtos/mysql/user.dto";
 
 // Redis
 import { getDataToRedis } from "@services//redis.service";
+import {generateVerificationCode} from "@utils/utils";
 
 @Service()
 export class UserService {
   // 생성자 주입을 통해 UserDao 의존성 주입
   constructor(
     private readonly userDao : UserDao,
+    private readonly mailService: MailService,
   ) {}
 
   /**
@@ -78,10 +82,11 @@ export class UserService {
 
   /**
    * 로그인 서비스
-   * @param userId
-   * @param password
+   * @param clientIp  - 요청자의 Ip
+   * @param userId    - 사용자 Id
+   * @param password  - 사용자 비밀번호
    */
-  public async login(userId: string, password: string): Promise<Result> {
+  public async login(clientIp: string | undefined, userId: string, password: string): Promise<Result> {
     const { success, data } = await this.userDao.findByUserIdWithPW(userId);
     const user: UpdateUserDto = data;
     if (!success) {
@@ -122,18 +127,9 @@ export class UserService {
     }
 
     user.failedLoginAttempts = 0;
-    // @ts-ignore
     user.lastLoginDatetime = new Date();
     user.isLoggedIn = true;
-
-    try {
-      // 로그인 요청 IP 조회
-      const response = await axios.get("https://api.ipify.org?format=json");
-      const ipAddress = response.data.ip; // 공인 ip
-      user.ipAddress = ipAddress;
-    } catch (error) {
-      console.log("IP 주소를 가져오던 중 오류 발생: ", error);
-    }
+    user.ipAddress = clientIp;  // 사용자 clientIp 저장
 
     const authUser: AuthUser = {
       id: user.id,
@@ -213,8 +209,9 @@ export class UserService {
    * AccessToken 만료 시 RefreshToken을 사용하여 AccessToken을 재발급 하는 메서드
    * @param authUser
    * @param refreshToken
+   * @param clientIp
    */
-  public async reissueAccessToken (authUser: AuthUser, refreshToken: string): Promise<Result> {
+  public async reissueAccessToken (authUser: AuthUser, refreshToken: string, clientIp: string | undefined): Promise<Result> {
     const result: Result = { success: false, data: null };
 
     console.log("authUser", authUser);
@@ -233,6 +230,37 @@ export class UserService {
     // redis에 저장된 refresh 토큰과 cookie의 refresh 토큰을 비교
     const getTokenResult = getRefreshToken.data;
     if (refreshToken !== getTokenResult.refreshToken) {
+      // 엑세스 토큰 재발급 요청 시 쿠키에 저장된 refresh 토큰과 redis에 저장된 refresh 토큰이 다른 경우
+      // refresh 토큰을 탈취하여 accessToken을 비정상적으로 발급하려는 목적으로 간주.
+      // 비정상 로그인 에러와 함께 User가 가입할때 등록한 메일로 비정상 로그인 메일 발송
+      const {success: getResult, data: userInfo} = await this.userDao.findByUserId(authUser.userId);
+
+      // user가 존재하지 않는 경우 비정상 접근 response
+      if (!getResult) {
+        throw new HttpException(403, "비정상적인 접근입니다.");
+      }
+
+      // 사용자에게 비정상 접근 메일 전송
+      const sendMailResult = await this.mailService.sendAbnormalAccessVerificationEmail(userInfo, clientIp);
+      if (sendMailResult.success) {
+        const result = sendMailResult.data;
+
+        // 전송 후 user 정보 update
+        const userUpdateDto: UpdateUserDto = {
+          ...userInfo,
+          isLoggedIn: false,  // 로그아웃 처리
+          isActive: false,    // 계정 잠금
+          verificationCode: result.verificationCode,  // 인증번호 저장
+        }
+
+        const updateResult = await this.userDao.update(userUpdateDto);
+        if (!updateResult.success) {
+          console.error("사용자 정보 수정 실패: ", updateResult.error);
+        }
+      }
+
+      // Redis에서 토큰 삭제
+
       throw new HttpException(403, "비정상적인 접근입니다.");
     }
 

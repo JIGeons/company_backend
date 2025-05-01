@@ -1,0 +1,65 @@
+<!-- src/templates/abnormalAccess.template.ejs -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <title>비정상 로그인 시도 감지</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #fafafa;
+            padding: 24px;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+            padding: 32px;
+        }
+        .title {
+            color: #d32f2f;
+        }
+        .info {
+            margin: 20px 0;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 20px;
+            background-color: #1976d2;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .footer {
+            margin-top: 32px;
+            font-size: 12px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2 class="title">⚠️ 비정상적인 로그인 시도가 감지되었습니다</h2>
+    <p>회원님의 계정에서 <strong>Refresh Token</strong>을 이용한 비정상적인 요청이 감지되었습니다.</p>
+
+    <div class="info">
+        <p><strong>발생 시간:</strong> <%= formattedTime %></p>
+        <p><strong>요청한 IP 주소:</strong> <%= ipAddress %></p>
+    </div>
+
+    <p>본인이 아닌 경우, 아래 링크를 눌러 인증 절차를 진행해주세요:</p>
+    <p style="text-align: center;">
+        <a href="<%= verificationUrl %>">인증하러 가기</a>
+    </p>
+
+    <div class="footer">
+        ※ 본 메일은 보안 알림 메일로 회신이 불가능합니다.<br/>
+        의심스러운 활동이 계속되는 경우 고객센터로 문의해 주세요.
+    </div>
+</div>
+</body>
+</html>

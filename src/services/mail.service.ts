@@ -10,6 +10,10 @@ import { mailConfig } from "@config/mail.config";
 // interface
 import { MailOptions } from "@interfaces/mail.interface";
 import { Result } from "@interfaces/result.interface";
+import { User } from "@interfaces/user.interface";
+import { generateVerificationCode } from "@utils/utils";
+import {SERVER_URI} from "@/config";
+import * as fs from "node:fs";
 
 /**
  * 메일 서비스 Class
@@ -51,5 +55,52 @@ export class MailService {
       result.error = error instanceof Error ? error.message : String(error);
       return result;
     }
+  }
+
+  /**
+   * 비정상 접근에 대한 메일을 생성하고 발송하는 메서드
+   * @param userInfo - API 요청 토큰의 사용자 정보
+   * @param clientIp - API 요청자의 IP
+   */
+  public async sendAbnormalAccessVerificationEmail(userInfo: User, clientIp: string | undefined): Promise<Result> {
+    const result: Result = { success: false, data: null };
+
+    // 인증코드 생성 (기본 8자리)
+    const verificationCode = generateVerificationCode();
+    const verificationUrl = `${SERVER_URI}/api/auth/verify?userId=${userInfo.userId}&code=${encodeURIComponent(verificationCode)}`;
+
+    // 발송할 메일 생성
+    const receiver = userInfo.email;
+    const subject = `[ABC-Company] ${userInfo.name}님 계정으로 비정상 접근이 감지되었습니다.`;
+
+    // AbnormalAccess.template.ejs 파일을 읽어온다.
+    const abnormalAccessFile = fs.readFileSync("./src/templates/abnormalAccess.template.ejs", 'utf8');
+    // ejs 파일 렌더링
+    const sendMailContent = ejs.render(abnormalAccessFile, {
+      formattedTime: new Date().toISOString(),
+      ipAddress: clientIp || "IP 알 수 없음",
+      verificationUrl: verificationUrl,
+    });
+
+    const sendMailData: MailOptions = {
+      to: receiver,
+      subject: subject,
+      html: sendMailContent
+    };
+
+    // 메일 전송
+    const sendMailResult = await this.sendMail(sendMailData);
+    if (!sendMailResult.success) {
+      console.error('메일 전송 실패: ', sendMailResult.error);
+      result.error = sendMailResult.error;
+    }
+
+    result.success = true;
+    result.data = {
+      verificationCode: verificationCode,
+      sendData: sendMailResult.data
+    };
+
+    return result;
   }
 }

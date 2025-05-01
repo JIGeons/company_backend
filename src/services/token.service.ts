@@ -2,7 +2,7 @@
  * JWT Token 관련 서비스 계층
  */
 import jwt, {JsonWebTokenError, TokenExpiredError} from "jsonwebtoken";
-import {ACCESS_SECRET, JWT_EXPIRES, REFRESH_SECRET} from "@/config";
+import {ACCESS_SECRET, REFRESH_SECRET, JWT_EXPIRES, JWT_ACCESS_EXPIRE} from "@/config";
 import {RedisStoreKeyActionEnum, TokenTypeEnum} from "@utils/enum";
 
 // Interface
@@ -19,7 +19,7 @@ export const createAccessToken = async (authUser: AuthUser) => {
   return jwt.sign(
     authUser,
     ACCESS_SECRET,
-    { expiresIn: '15m' }  // accessToken 만료 시간 15분 설정
+    { expiresIn: JWT_ACCESS_EXPIRE }  // accessToken 만료 시간 15분 설정
   )
 }
 

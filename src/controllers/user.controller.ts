@@ -37,8 +37,9 @@ export class UserController {
   public login = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { userId, password } = req.body;
+      const clientIp = req.clientIp;
 
-      const loginResult = await this.userService.login(userId, password);
+      const loginResult = await this.userService.login(clientIp, userId, password);
       if (!loginResult.success) {
         return next(new HttpException(400, "Invalid username or password"));
       }
@@ -122,10 +123,11 @@ export class UserController {
   public reissueTokens = async (req: Request, res: Response, next: NextFunction) => {
     const authUser = req.user as AuthUser;
     const refreshToken = req.refreshToken!;
+    const clientIp = req.clientIp;
 
     try {
       // 새로운 토큰 발행
-      const reissueTokenResult = await this.userService.reissueAccessToken(authUser, refreshToken);
+      const reissueTokenResult = await this.userService.reissueAccessToken(authUser, refreshToken, clientIp);
       if (!reissueTokenResult.success) {
         return next(new HttpException(404, reissueTokenResult.error));
       }

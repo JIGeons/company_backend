@@ -14,6 +14,8 @@ export const { SERVER_URI, REDIS_URI } = process.env;
 
 // JWT
 export const { ACCESS_SECRET, REFRESH_SECRET } = process.env;
+// export const JWT_ACCESS_EXPIRE = 15 * 60; // 15분
+export const JWT_ACCESS_EXPIRE = 10; // 15분
 export const JWT_EXPIRES = 6 * 60 * 60;   // 6시간
 
 // MongoDB

@@ -1,5 +1,8 @@
+/**
+ * Auth 미들웨어
+ */
 import {Request, Response, NextFunction, RequestHandler} from "express";
-import jwt, { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
+import requestIp from "request-ip";
 
 // ENV
 import { ACCESS_SECRET } from "@/config";
@@ -57,6 +60,10 @@ export const AuthMiddleware: RequestHandler = async (req: Request, res: Response
 
   // 토큰 검사 성공 시
   req.user = tokenVerifyResult.authUser as AuthUser;
+
+  // 사용자 IP 조회
+  const clientIp = requestIp.getClientIp(req);
+  req.clientIp = clientIp || undefined;
   next();
 };
 
@@ -89,6 +96,9 @@ export const RefreshTokenMiddleware: RequestHandler = async (req: Request, res: 
   const { success, authUser, code, message } = await verifyToken(refreshToken, TokenTypeEnum.REFRESH);
   if (!success) return next(new HttpException(code, message));
 
+  // 사용자 IP 조회
+  const clientIp = requestIp.getClientIp(req);
+  req.clientIp = clientIp || undefined;
   req.user = authUser as AuthUser;
   req.refreshToken = refreshToken;
   next();

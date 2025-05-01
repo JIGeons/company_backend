@@ -6,7 +6,7 @@ import { mailConfig } from '@config/mail.config';
 import { Container } from "typedi";
 
 // SMTP 서버 연결 및 SMTP 객체 생성
-export function initializeMailTransporter() {
+export function createMailTransporter() {
   const mailTransporter = nodemailer.createTransport({
     ...mailConfig,
     pool: true,
@@ -15,4 +15,5 @@ export function initializeMailTransporter() {
   });
 
   Container.set("mailTransporter", mailTransporter);
+  console.log("SMTP 연결 완료");
 }
