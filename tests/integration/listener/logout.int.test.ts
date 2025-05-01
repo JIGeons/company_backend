@@ -44,7 +44,7 @@ describe("Logout Handler 통합 테스트", () => {
 
   afterAll(async () => {
     await app.close();
-  })
+  });
 
   it('정상적인 accessToken을 전달하면 로그아웃이 성공해야한다.', async () => {
 

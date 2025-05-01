@@ -1,4 +1,8 @@
 # Redis.ts 설명
+
+상태를 저장하거나 공유하지 않고, 각 기능을 명확히 분리한 함수 기반 구조로 작성하였다.
+모든 Redis 작업은 순수 함수처럼 입력과 출력이 명확하며, 부작용은 위부에 위임된다.
+
 Redis는 명령 처리(RedisClient)와 이벤트 감지(RedusSubscriber)를 위해 두 개의 클라이언트를 사용한다.
 
 ---
@@ -6,6 +10,7 @@ Redis는 명령 처리(RedisClient)와 이벤트 감지(RedusSubscriber)를 위�
 ### ✅ 일반 명령용 - RedisClient
 
 - `Get`, `Set`, `Delete` 등 기본적인 데이터 조회, 저장, 삭제 작업을 처리한다.
+- `Set` 명령의 경우 동일한 key에 새로운 데이터를 set하면 업데이트하는 것과 같은 효과를 볼 수 있다.
 - 주로 API 동작 시 호출되는 Redis 명령은 이 클라이언트를 통해 수행된다.
 
 ---
@@ -13,7 +18,8 @@ Redis는 명령 처리(RedisClient)와 이벤트 감지(RedusSubscriber)를 위�
 ### ✅ 이벤트 감지용 - RedisSubscriber
 
 - Key TTL 만료 이벤트를 감지하기 위해 사용된다.
-- 특히, 로그아웃 처리용 AccessToken이 만료되었을 때, 이벤트를 수신하여 **자동 로그아웃 처리**를 트리거 한다.
+- 특히, AccessToken을 Redis에 TTL 기반으로 저장함으로써, 만료 시점에 이벤트를 수신하여 **자동 로그아웃 처리**를 트리거 한다.
+- 이를 통해 서버는 별도의 cron이나 스케줄러 없이 토큰 만료 시점에 자동 로그아웃 처리를 수행할 수 있다.
 - Redis의 `notify-keyspace-events` 설정을 통해 `__keyevent@0__:expired` 채널을 구독하고 있다.
 
 ---
@@ -42,7 +48,7 @@ export enum RedisStoreKeyActionEnum {
 }
 
 // 예시
-LOGOUT:access-token:session
+LOGOUT:user-id:session
 REFRESH:user-id
 BLACKLIST:access-token
 ```
