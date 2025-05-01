@@ -5,7 +5,7 @@
 import request from "supertest";
 import mongoose from "mongoose";
 import { App } from "@/app";
-import {DIContainerSet, startTestServer} from "@tests/test-server";
+import { DIContainerSet, startTestServer } from "@tests/test-server";
 import { logoutHandler } from "@/listeners/logout.handler";
 import jwt from 'jsonwebtoken';
 import { DB } from "@/database"
