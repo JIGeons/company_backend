@@ -24,13 +24,13 @@ import {
   storeTokenToRedis
 } from "@services/token.service";
 // Dao
-import {UserDao} from "@/daos/mysql/user.dao";
+import { UserDao } from "@/daos/mysql/user.dao";
 
 // Dto
-import {CreateUserDto, UpdateUserDto} from "@/dtos/mysql/user.dto";
+import { CreateUserDto, UpdateUserDto } from "@/dtos/mysql/user.dto";
 
 // Redis
-import {getDataToRedis} from "@config/redis";
+import { getDataToRedis } from "@services//redis.service";
 
 @Service()
 export class UserService {

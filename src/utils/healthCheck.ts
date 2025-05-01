@@ -3,7 +3,7 @@
  */
 import { Request, Response } from "express";
 import mongoose from "mongoose";
-import { redisClient } from "@config/redis";
+import { redisClient } from "@config/redis.config";
 
 export const healthCheck = async (req: Request, res: Response): Promise<Response> => {
   try {

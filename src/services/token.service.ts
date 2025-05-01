@@ -6,9 +6,11 @@ import {ACCESS_SECRET, EXPIRES, REFRESH_SECRET} from "@/config";
 import {RedisStoreKeyActionEnum, TokenTypeEnum} from "@utils/enum";
 
 // Interface
-import {AuthHeader, AuthUser, userTokenInfo} from "@interfaces/user.interface";
-import {deleteToRedis, getDataToRedis, storeToRedis} from "@config/redis";
-import {Result} from "@interfaces/result.interface";
+import { AuthHeader, AuthUser, userTokenInfo } from "@interfaces/user.interface";
+import { Result } from "@interfaces/result.interface";
+
+// Service
+import { deleteToRedis, getDataToRedis, storeToRedis } from "@services//redis.service";
 
 /**
  * ACCESS Token 발급

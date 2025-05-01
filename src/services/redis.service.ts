@@ -1,60 +1,20 @@
 /**
- * Redis 연결 및 이벤트 처리 구독 설정 파일
+ * Redis Service 파일
  */
+import { redisClient } from '@config/redis.config';
+import { RedisStoreKeyActionEnum } from "@utils/enum";
 
-import {createClient} from 'redis';
-import {REDIS_URI} from "@config/index";
-import {logoutHandler} from "@/listeners/logout.handler";
-import {RedisStoreKeyActionEnum} from "@utils/enum";
-import {Result} from "@interfaces/result.interface";
-import {AuthUser} from "@interfaces/user.interface";
-import {createAccessToken, createTemporaryAccessToken} from "@services/token.service";
+// Interface
+import { Result } from "@interfaces/result.interface";
 
-// 일반 명령용 클라이언트
-export const redisClient = createClient({ url: REDIS_URI });
-
-// pub/sub 이벤트 감지용 클라이언트
-export const redisSubscriber = createClient({ url: REDIS_URI });
-
-// 호이스팅 되는 메서드
-export async function initializeRedis() {
-  // 명령용 클라이언트 연결
-  await redisClient.connect()
-    .then(() => {console.log("✅ Redis 명령용 연결 완료")})
-    .catch(error => {console.error("❌ Redis 명령용 연결 실패: ", error);});
-
-  // pub/sub용 클라이언트 연결
-  await redisSubscriber.connect()
-    .then(() => {console.log("✅ Redis 이벤트용 연결 완료")})
-    .catch(error => {console.error("❌ Redis 이벤트용 연결 실패: ", error);});
-
-  // TTL 만료 이벤트 설정
-  await initRedisSubscription(redisClient);
-
-  // TTL 만료 시 이벤트 발생 핸들러
-  await redisTTLEventHandler(redisSubscriber);
-
-  console.log('💡 Redis expired 이벤트 구독 시작');
-}
-
-/**
- * TTL 만료시 이벤트 발생도록 설정하는 메서드
- * @param redisClient - 일반 명령용 Redis Client
- */
-const initRedisSubscription = async (redisClient:any) => {
-  // TTL 이벤트 수신을 위한 notify 설정 (redis 전체 설정)
-  await redisClient.configSet('notify-keyspace-events', 'Ex').then(() => {
-    console.log('✅ Redis 연결 및 이벤트 설정 완료');
-  }).catch((error: any) => {
-    console.error('❌ Redis 연결 및 이벤트 설정 실패: ', error);
-  });  // TTL 만료 이벤트 구독
-}
+// Handler
+import { logoutRequestHandler } from "@/listeners/logout.handler";
 
 /**
  * TTL 만료 시 발생하는 이벤트 로직
  * @param redisSubscriber - 이벤트 구독용 Redis Client
  */
-const redisTTLEventHandler = async (redisSubscriber: any) => {
+export const redisTTLEventHandler = async (redisSubscriber: any) => {
   // 구독 시작: Redis 에서 TTL(Time-To-Live)이 만료되어 자동으로 삭제될 때 발생하는 이벤트
   await redisSubscriber.pSubscribe('__keyevent@0__:expired', (message: string) => {
     console.log('🕓 TTL 만료 감지: ', message);
@@ -68,16 +28,10 @@ const redisTTLEventHandler = async (redisSubscriber: any) => {
 }
 
 /**
- * 자동 로그아웃 요청 User 토큰 임시 생성 및 자동 로그아웃 요청
- * @param userId - User 모델의 userId
+ * Redis에 저장된 데이터를 조회하는 메서드
+ * @param keyAction - Redis에 저장된 타입 ['LOGOUT', 'BLACKLIST', 'REFRESH']
+ * @param key - 찾으려는 정보의 key
  */
-const logoutRequestHandler = async (userId: string) => {
-  console.log(userId);
-  const authUser: AuthUser = { id: -1 , userId: userId, name: "auto-logout" };
-  const accessToken = await createTemporaryAccessToken(authUser);  // 자동 로그아웃용 Token 생성
-  logoutHandler(accessToken); // 로그아웃 처리
-}
-
 export const getDataToRedis = async (keyAction: RedisStoreKeyActionEnum, key: string): Promise<Result> => {
   const keyName = createKeyName(keyAction, key);
   const result:Result = { success: false, data: null };
@@ -98,7 +52,13 @@ export const getDataToRedis = async (keyAction: RedisStoreKeyActionEnum, key: st
   }
 }
 
-// Redis에 데이터 저장 (호이스팅이 되지 않는 메서드)
+/**
+ * Redis에 데이터를 저장하는 메서드 (호이스팅이 되지 않는 메서드)
+ * @param keyAction - Redis에 저장할 타입 ['LOGOUT', 'BLACKLIST', 'REFRESH']
+ * @param key - Redis에 저장할 key 이름
+ * @param data - Redis에 저장한 data
+ * @param ttlTime - Redis 저장 데이터 만료 시간
+ */
 export const storeToRedis = async (keyAction: RedisStoreKeyActionEnum, key: string, data: object, ttlTime: number): Promise<Result> => {
   const keyName = createKeyName(keyAction, key);
   const result: Result = { success: false, data: null };
@@ -116,7 +76,11 @@ export const storeToRedis = async (keyAction: RedisStoreKeyActionEnum, key: stri
   return result;
 }
 
-// Redis의 데이터 삭제
+/**
+ * Redis의 데이터 삭제
+ * @param keyAction - Redis에 저장된 타입 ['LOGOUT', 'BLACKLIST', 'REFRESH']
+ * @param key - Redis에서 찾을 정보의 Key
+ */
 export const deleteToRedis = async (keyAction: RedisStoreKeyActionEnum, key: string): Promise<Result> => {
   const keyName = createKeyName(keyAction, key);
   const result: Result = { success: false, data: null };
@@ -149,6 +113,10 @@ const createKeyName = (keyAction: RedisStoreKeyActionEnum, key: string) => {
   return keyName;
 }
 
+/**
+ * Redis의 저장된 KeyName을 분리하는 메서드
+ * @param keyName
+ */
 const getKeyName = (keyName: string) => {
   // keyName을 구조분해 할당. suffix가 없는 경우 null을 기본값으로 설정
   const [ prefix, key, suffix = null ] = keyName.split(':');

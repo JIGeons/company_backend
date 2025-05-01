@@ -10,7 +10,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import { PORT } from "@/config";
 import { DB } from "@/database";
-import { initializeRedis, redisClient, redisSubscriber } from "@config/redis";
+import { initializeRedis, redisClient, redisSubscriber } from "@config/redis.config";
 import { healthCheck } from "@utils/healthCheck";
 
 // Middleware
