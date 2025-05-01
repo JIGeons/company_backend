@@ -2,7 +2,7 @@
  * JWT Token 관련 서비스 계층
  */
 import jwt, {JsonWebTokenError, TokenExpiredError} from "jsonwebtoken";
-import {ACCESS_SECRET, EXPIRES, REFRESH_SECRET} from "@/config";
+import {ACCESS_SECRET, JWT_EXPIRES, REFRESH_SECRET} from "@/config";
 import {RedisStoreKeyActionEnum, TokenTypeEnum} from "@utils/enum";
 
 // Interface
@@ -30,7 +30,7 @@ export const createRefreshToken = async (authUser: AuthUser) => {
   return jwt.sign(
     authUser,
     REFRESH_SECRET,
-    { expiresIn: EXPIRES }  // refreshToken 만료 시간 6시간 설정
+    { expiresIn: JWT_EXPIRES }  // refreshToken 만료 시간 6시간 설정
   )
 }
 
@@ -120,8 +120,8 @@ export const storeTokenToRedis = async (userId: string, accessToken: string, ref
 
   try {
     // redis에 저장
-    await storeToRedis(RedisStoreKeyActionEnum.LOGOUT, userId, accessData, EXPIRES);
-    await storeToRedis(RedisStoreKeyActionEnum.REFRESH, userId, refreshData, EXPIRES);
+    await storeToRedis(RedisStoreKeyActionEnum.LOGOUT, userId, accessData, JWT_EXPIRES);
+    await storeToRedis(RedisStoreKeyActionEnum.REFRESH, userId, refreshData, JWT_EXPIRES);
 
     result.success = true;
     result.data = { accessToken, refreshToken };

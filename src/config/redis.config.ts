@@ -2,8 +2,8 @@
  * Redis 연결 및 이벤트 처리 구독 설정 파일
  */
 
-import {createClient} from 'redis';
-import {REDIS_URI} from "@config/index";
+import { createClient } from 'redis';
+import { REDIS_URI } from "@config/index";
 
 // Service
 import { redisTTLEventHandler } from "@services/redis.service";
