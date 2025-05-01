@@ -1,7 +1,8 @@
-# Redis.ts 설명
+# Redis 모듈 설명
 
-상태를 저장하거나 공유하지 않고, 각 기능을 명확히 분리한 함수 기반 구조로 작성하였다.
-모든 Redis 작업은 순수 함수처럼 입력과 출력이 명확하며, 부작용은 위부에 위임된다.
+상태를 저장하거나 공유하지 않고, 각 기능을 명확히 분리한 함수 기반 구조로 작성하였다. </br> 
+모든 Redis 작업은 입력과 출력이 명확한 함수로 추상화했고,</br>
+Redis에 직접 접근하는 비즈니스 로직은 서비스 계층에서만 수행되도록 설계하였다.
 
 Redis는 명령 처리(RedisClient)와 이벤트 감지(RedusSubscriber)를 위해 두 개의 클라이언트를 사용한다.
 
@@ -46,11 +47,49 @@ export enum RedisStoreKeyActionEnum {
   BLACKLIST = "BLACKLIST",
   REFRESH = "REFRESH",
 }
-
-// 예시
-LOGOUT:user-id:session
-REFRESH:user-id
-BLACKLIST:access-token
 ```
 
 - `LOGOUT` 키의 경우, TTL 이벤트 처리를 위해 `:session` suffix를 추가한다.
+
+### 🔑 예시:
+
+- `LOGOUT:user-id:session`
+- `REFRESH:user-id`
+- `BLACKLIST:access-token`
+
+---
+
+## 📁 코드 분리 및 설계 원칙
+
+이 Redis 모듈은 **관심사의 분리(Separation of Concerns)** 와 **역할 기반 책임 분리(SRP)** 를 기반으로 다음과 같은 구조로 관리했다.
+
+### ✅ `redis.config.ts`
+
+- **역할**: Redis 클라이언트 초기화 및 설정
+- **책임**
+    - Redis 연결 (명령용 / 이벤트용 클라이언트)
+    - `notify-keyspace-events` 설정
+    - 앱 실행 시 `initializeRedis()`를 한 번만 호출하여 Redis 연동 및 이벤트 구독을 설정함
+- **이유**: Redis의 초기 연결 설정만을 관리하는 파일이기 때문에 config로 분리
+
+---
+
+### ✅ `redis.service.ts`
+
+- **역할**: Redis 관련 비즈니스 로직 수행
+- **책임**
+    - TTL 만료 이벤트 수신 후 로그아웃 처리
+    - Redis CRUD 처리 (`set`, `get`, `del`)
+- **이유**: Redis 서버에 직접적인 CRUD를 수행하는 비즈니스 로직이기 때문에 서비스 계층으로 분리
+
+---
+
+### ✅ `redis.util.ts`
+
+- **역할**: Redis Key 조립 및 파싱 유틸
+- **책임**
+    - Enum 기반 Key 문자열 생성
+    - Redis Key 구조 파싱
+- **이유**: Redis 서버에 직접 접근하지 않기 때문에 순수 유틸리티 함수로 분리
+
+---

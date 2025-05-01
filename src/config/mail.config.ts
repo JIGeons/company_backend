@@ -1,5 +1,5 @@
 /**
- * Mail config 파일
+ * mail.config.ts
  */
 import { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD, SMTP_SENDER_NAME, SMTP_SENDER_MAIL } from "@config/index";
 import nodemailer from 'nodemailer';
