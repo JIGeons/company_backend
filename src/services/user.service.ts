@@ -260,6 +260,7 @@ export class UserService {
       }
 
       // Redis에서 토큰 삭제
+      const deleteTokenResult = await deleteTokenToRedis(userInfo.userId);
 
       throw new HttpException(403, "비정상적인 접근입니다.");
     }

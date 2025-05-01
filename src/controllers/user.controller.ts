@@ -142,6 +142,10 @@ export class UserController {
 
       res.status(200).json({ message: "새로운 토큰을 발행하였습니다.", accessToken: tokens.accessToken });
     } catch (error) {
+      // 에러 상태 코드가 403인 경우 쿠키 clear
+      if (error instanceof HttpException && error.status === 403) {
+        res.clearCookie('refreshToken');
+      }
       next(error);
     }
   }
