@@ -32,7 +32,8 @@ export class ContactDao {
 
       return { success: true, data: contactAllResult };
     } catch (error) {
-      return { success: false, error: "Contact 전체 조회 실패." }
+      let message: string = error instanceof Error ? error.message : String(error);
+      return { success: false, error: `Contact 전체 조회 실패. (Error: ${message})` }
     }
   }
 
