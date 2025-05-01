@@ -8,12 +8,13 @@ export interface User {
   userId: string;
   email: string;
   name: string;
-  password: string;
+  password?: string;
   isLoggedIn?: boolean;
   isActive?: boolean;
   failedLoginAttempts?: number;
   lastLoginDatetime?: Date;
   ipAddress?: string;  // 관리자 로그인 시 접속 네트워크의 IP 주소를 저장하는 필드
+  verificationCode?: string;
   createdAt?: Date;
 }
 

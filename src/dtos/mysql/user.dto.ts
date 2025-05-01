@@ -53,7 +53,11 @@ export class UpdateUserDto {
 
   @IsOptional()
   @IsDate()
-  lastLoginDatetime?: number;
+  lastLoginDatetime?: Date;
+
+  @IsOptional()
+  @IsString()
+  verificationCode?: string;
 
   @IsOptional()
   @IsString()

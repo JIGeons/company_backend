@@ -39,6 +39,9 @@ export class UserModel {
   @Column({ nullable: true })
   ipAddress?: string;
 
+  @Column({ nullable: true })
+  verificationCode?: string;
+
   @CreateDateColumn()
   createdAt?: Date;
 }
