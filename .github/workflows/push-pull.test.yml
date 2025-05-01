@@ -82,6 +82,13 @@ jobs:
         echo "AWS_BUCKET_NAME=${{ secrets.AWS_BUCKET_NAME }}" >> .env.test
         echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> .env.test
         
+        echo "SMTP_HOST=smtp.naver.com" >> .env.test
+        echo "SMTP_PORT=587" >> .env.test
+        echo "SMTP_USER=cwltjd98" >> .env.test
+        echo "SMTP_PASSWORD=${{ secrets.SMTP_PASSWORD }}" >> .env.test
+        echo "SMTP_SENDER_NAME=ABC-Company" >> .env.test
+        echo "SMTP_SENDER_MAIL=cwltjd98@naver.com" >> .env.test
+        
 
     # redis 서버 실행
     - name: Start Redis
