@@ -1,23 +1,25 @@
 # 🏢 나만의 회사 웹사이트 - Backend (Node.js + Express)
 
 React 프론트엔드와 연동되는 백엔드 서버로,  
-**회원 인증(JWT), 게시글 저장, 이미지 업로드(AWS S3)** 기능을 구현한 학습용 프로젝트입니다.  
-MongoDB Atlas와 AWS S3를 연동하고, JWT는 **HTTP-only 쿠키 방식**으로 처리하여  
-보안성과 실무 흐름에 대한 이해를 목표로 구성하였습니다.
+이 프로젝트는 **인프런 강의**를 기반으로 시작하였으며,</br>
+강의 수강 이후, 백엔드 구조를 **Node.js + TypeScript**로 **직접 재설계하며 고도화 중인 개인 프로젝트**입니다.
+- 서비스 간 결합도를 낮추기 위해, **책임분리**와 **의존성 주입(DI)** 기반으로 설계하도록 노력했습니다.
+- **테스트 코드를 작성**하여, 새로운 서비스 추가나 기존 코드 수정시 **테스트 코드를 실행**하여 프로젝트에 안정성을 유지하고자 하였습니다.
+- 협업을 대비해, **사용 모듈 및 설계 방식을 Markdown 문서로 정리**하는 습관을 기르고 있습니다.  
 
 ---
 
 ## 🛠️ 사용 기술 (Tech Stack)
 
-| 분류             | 기술 스택                                                                   |
-|-----------------|---------------------------------------------------------------------------|
-| **Framework**   | Node.js 23.x, Express.js                                                  |
-| **Language**    | TypeScript 5.x (초기 개발은 JavaScript(ES6+), 이후 리팩토링)                    |
-| **DBMS / ODM**  | MongoDB, Mongoose                                                         |
-| **Public Cloud**| AWS (EC2 - 서버 배포, S3 - 이미지/파일 업로드)                                   |
-| **Test**        | Jest                                                                      |
-| **DevOps**      | Docker, Docker Compose, dotenv                                            |
-| **Others**      | JWT(HTTP-only Cookie 기반), Redis, Multer, Multer-S3                       |
+| 분류                 | 기술 스택                                             |
+|--------------------|---------------------------------------------------|
+| **Framework**      | Node.js 23.x, Express.js                          |
+| **Language**       | TypeScript 5.x (초기 개발은 JavaScript(ES6+), 이후 리팩토링) |
+| **DBMS / ODM ORM** | MongoDB, MySQL, Mongoose, typeORM                 |
+| **Public Cloud**   | AWS (EC2 - 서버 배포, S3 - 이미지/파일 업로드)                |
+| **Test**           | Jest                                              |
+| **DevOps**         | Docker, Docker Compose, dotenv                    |
+| **Others**         | JWT(HTTP-only Cookie 기반), Redis, SMTP, Multer     |
 
 
 ---
@@ -76,3 +78,7 @@ MongoDB Atlas와 AWS S3를 연동하고, JWT는 **HTTP-only 쿠키 방식**으�
 - 클라이언트에서 JS로 쿠키 접근 불가 → **XSS 방어**
 
 ---
+
+## 🚀 실행 방법
+
+### &nbsp;&nbsp;&nbsp;&nbsp; 👉 [📄 실행 가이드 보러가기](./docs/SETUP.md)
