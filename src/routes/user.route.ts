@@ -23,6 +23,10 @@ export class UserRoute implements Routes {
     this.router.post(`${this.path}/verify-token`, AuthMiddleware, this.userController.verifyToken);
     this.router.post(`${this.path}/refresh-token`, RefreshTokenMiddleware, this.userController.reissueTokens);
 
+    // 사용자 계정 재활성화 관련 API
+    this.router.get(`${this.path}/verify`, this.userController.renderVerifyPage)
+    this.router.post(`${this.path}/verify`, this.userController.accountVerify)
+
     // Delete
     this.router.delete(`${this.path}/delete/:id`, AuthMiddleware, this.userController.deleteUser);
   }

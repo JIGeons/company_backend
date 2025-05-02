@@ -4,10 +4,12 @@
 import { Request, Response, NextFunction } from "express";
 import { Container } from "typedi";
 import { HttpException } from "@exceptions/httpException";
+import fs from "fs";
+import ejs from "ejs";
 import jwt from "jsonwebtoken";
 
 // ENV
-import { NODE_ENV, ACCESS_SECRET, JWT_EXPIRES } from "@/config";
+import { NODE_ENV, ACCESS_SECRET, JWT_EXPIRES, CLIENT_URI } from "@/config";
 
 // Interface
 import { AuthUser } from "@interfaces/user.interface";
@@ -17,7 +19,6 @@ import { UserService } from '@services/user.service';
 
 // Dto
 import { CreateUserDto } from "@/dtos/mysql/user.dto";
-import {Result} from "@interfaces/result.interface";
 
 export class UserController {
   private userService = Container.get(UserService);
@@ -146,6 +147,42 @@ export class UserController {
       if (error instanceof HttpException && error.status === 403) {
         res.clearCookie('refreshToken');
       }
+      next(error);
+    }
+  }
+
+  public renderVerifyPage = async (req: Request, res: Response, next: NextFunction) => {
+    const { userId, code } = req.query;
+    // param에 userId와 code가 없는 경우
+    if (!(userId && code)) {
+      res.status(400).send("잘못된 요청입니다.");
+      return ;
+    }
+
+    // 단순 EJS 템플릿 렌더링 후 반환
+    const verifyPage = fs.readFileSync('./src/templates/account-verify.template.ejs', 'utf-8');
+    const renderPage = ejs.render(verifyPage, {redirectUrl: `${CLIENT_URI}`});
+    res.send(renderPage);
+  }
+
+  public accountVerify = async (req: Request, res: Response, next: NextFunction) => {
+    const { userId, code } = req.query;
+    const { userId: accountId, userPassword } = req.body;
+
+    // param에 userId와 code가 없는 경우
+    if (!(userId && code) || (userId !== accountId)
+      || !(accountId && userPassword) || typeof code !== 'string') {
+      console.error("잘못된 요청");
+      res.status(400).send("잘못된 요청입니다.");
+      return ;
+    }
+
+    try {
+      // 사용자 정보 인증 및 재활성화
+      const verifyResult = await this.userService.verifyUserAccount(accountId, userPassword, code);
+
+      res.status(200).json({ success: true, data: verifyResult.data });
+    } catch (error) {
       next(error);
     }
   }

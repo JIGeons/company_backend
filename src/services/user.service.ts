@@ -13,7 +13,7 @@ import {validate} from "class-validator";
 import {RedisStoreKeyActionEnum} from "@utils/enum";
 
 // Interface
-import {AuthUser} from "@interfaces/user.interface";
+import {AuthUser, User} from "@interfaces/user.interface";
 import {Result} from "@interfaces/result.interface";
 
 // Service
@@ -102,16 +102,14 @@ export class UserService {
       throw new HttpException(401, "이미 다른 기기에서 로그인이 되어있습니다.");
     }
 
-    // @ts-ignore 암호화된 비밀번호가 동일한지 비교
-    const isValidPassword = bcrypt.compare(password, user.password);
+    // 암호화된 비밀번호가 동일한지 비교
+    const isValidPassword = await bcrypt.compare(password, user.password!);
     if (!isValidPassword) {
-      // @ts-ignore
-      user.failedLoginAttempts += 1;
-      // @ts-ignore
+      user.failedLoginAttempts! += 1;
       user.lastLoginDatetime = new Date();
 
-      // @ts-ignore 비밀번호를 5회 이상 틀렸을 시 계정 잠금
-      if (user.failedLoginAttempts >= 5) {
+      // 비밀번호를 5회 이상 틀렸을 시 계정 잠금
+      if (user.failedLoginAttempts! >= 5) {
         user.isActive = false;
         await this.userDao.update(user);
         throw new HttpException(401, "비밀번호 5회 이상 틀려 계정이 비활성화 됩니다.");
@@ -278,5 +276,54 @@ export class UserService {
       refreshToken: newRefreshToken,
     }
     return result;
+  }
+
+  public async verifyUserAccount (accountId: string, userPassword: string, code: string): Promise<Result> {
+    console.log(accountId, userPassword, code);
+
+    // 사용자 정보 조회
+    const getUserInfo = await this.userDao.findByUserIdWithPW(accountId);
+    if (getUserInfo.error) {
+      console.log("### 사용자 재활성화 오류(서버 에러): ", getUserInfo.error);
+      throw new HttpException(500, getUserInfo.error);
+    } else if (!getUserInfo.success) {
+      console.log("### 사용자 재활성화 오류: 입력한 정보의 사용자를 찾을 수 없음");
+      throw new HttpException(404, "입력한 정보의 사용자를 찾을 수 없습니다.");
+    }
+
+    const user: User = getUserInfo.data;
+    console.log(user.password);
+    // 암호화된 비밀번호가 동일한지 비교
+    const isValidPassword = await bcrypt.compare(userPassword, user.password!);
+    console.log(isValidPassword);
+    // 비밀번호가 동일하지 않은 경우 400 에러 반환
+    if (!isValidPassword) {
+      console.log("### 사용자 재활성화 실패: 입력한 비밀번호가 일치하지 않습니다.");
+      throw new HttpException(400, "입력한 비밀번호가 일치하지 않습니다.");
+    }
+
+    // 일치하는 경우 verificationCode와 code를 비교
+    if (user.verificationCode !== code) {
+      console.log('### 사용자 재활성화 실패: 잘못된 code로의 접근입니다.');
+      throw new HttpException(400, "잘못된 code로의 접근입니다. 다시 확인해주세요.");
+    }
+
+    // 비밀번호 & code가 일치하는 경우 사용자 계정 활성화
+    user.isActive = true;
+    user.verificationCode = '';
+    const updateResult = await this.userDao.update(user as UpdateUserDto);
+    if (updateResult.error) {
+      console.error('### 사용자 재활성화 오류(서버 에러): ', updateResult.error);
+      throw new HttpException(500, updateResult.error);
+    } else if (!updateResult.success) {
+      console.log('### 사용자 재활성화 실패: ', updateResult.error);
+      throw new HttpException(403, "사용자의 정보를 수정할 수 없습니다.");
+    }
+
+    console.log("업데이트된 유저 정보: ", updateResult.data);
+    return {
+      success: true,
+      data: updateResult.data,
+    };
   }
 }
