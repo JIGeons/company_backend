@@ -95,8 +95,8 @@ HMACSHA256(
 
 - **Payload는 암호화되어 있지 않다.**
     - JWT를 단순 디코딩하면 Payload의 내용은 누구나 볼 수 있기 때문에, 설계 시 정보 선택에 신중해야 한다.
-
-      ![jwt 토큰 디코딩.jpeg](attachment:97349fb8-7780-431e-be1c-28c5274dc72f:jwt_토큰_디코딩.jpeg)
+      
+      ![jwt 토큰 디코딩](https://github.com/user-attachments/assets/f185e161-4067-4f51-b46f-a957ab64d59a)
 
     - 민감한 정보(비밀번호, 주민번호 등)는 절대 저장해서는 안된다.
 - **토큰 탈취에 주의해야한다.**
