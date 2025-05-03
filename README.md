@@ -112,7 +112,7 @@
   │   │   └── redis.config.ts
   │   ├── listeners/
   │   │   └── logout.hanlder.ts
-  │   ├── templates/
+  │   └── templates/
   │       ├── mail/
   │       │   └── abnormalAccess.template.ejs
   │       └── account-verify.template.ejs
@@ -182,7 +182,7 @@
 
 ## **🏗 시스템 아키텍처**
 
-![ABC-Company 시스템 아키텍처 (가로).drawio.png](attachment:c0bb112f-b019-45bc-80db-9347d6df264b:ABC-Company_시스템_아키텍처_(가로).drawio.png)
+![ABC-Company 시스템 아키텍처 가로](https://github.com/user-attachments/assets/a0498550-38e6-46fb-8ca1-e9254ec3f53e)
 
 ---
 
