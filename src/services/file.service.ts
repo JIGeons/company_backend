@@ -58,8 +58,13 @@ export class S3FileStorageService implements FileStorageServiceInterface {
 
   // S3 파일 반복 삭제
   async deleteFiles(urls: string[]): Promise<void> {
-    for (const url of urls) {
-      await this.deleteFile(url);
+    try {
+      for (const url of urls) {
+        await this.deleteFile(url);
+      }
+    } catch (error) {
+      // S3 파일을 삭제하다가 에러가 난 경우
+      throw new Error(`[S3] 파일 삭제 중 에러 발생 ( Error: ${JSON.stringify(error)} )`);
     }
   }
 

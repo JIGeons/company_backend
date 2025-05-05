@@ -114,9 +114,16 @@ export class PostDao {
     }
   }
 
-  async deletePost(id: string): Promise<Result> {
+  async deletePost(id: string, session?: ClientSession): Promise<Result> {
     try {
-      const deletePostResult = await this.Post.findByIdAndDelete(id);
+      let deletePostQuery = this.Post.findByIdAndDelete(id);
+      // 트랜잭션이 존재하는 경우 session 추가
+      if (session) {
+        deletePostQuery = deletePostQuery.session(session);
+      }
+
+      // 게시글 삭제 후 결과 반환
+      const deletePostResult = await deletePostQuery.lean();
       if (!deletePostResult) {
         return { success: false, data: null }
       }

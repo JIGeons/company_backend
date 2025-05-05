@@ -186,54 +186,77 @@ export class PostService {
         (url: string) => !(fileUrl).includes(url)
       );
 
-      // AWS S3 파일 삭제
+      // AWS S3 파일 삭제 실패시 error Throw
       const allDeletedFiles = [...deletedImages, ...deletedFiles];
       await this.s3FileStorageService.deleteFiles(allDeletedFiles);
 
       // 트랜잭션 커밋
       await session.commitTransaction();
-      await session.endSession();
 
       return { success: true, data: updatePostResult };
     } catch (error) {
       // 트랜잭션 롤백
       await session.abortTransaction();
-      await session.endSession();
 
       if (error instanceof HttpException) {
         throw new HttpException(error.status, error.message, error?.error);
       }
 
       throw new HttpException(500, "### UpdatePost 서버 에러", error);
+    } finally {
+      // Mongo 트랜잭션 session 종료
+      await session.endSession();
     }
   }
 
   public async deletePost(id: string) {
-    const findPost = await this.postDao.findOneById(id);
-    if (findPost.error) {
-      throw new HttpException(500, findPost.error);
-    }
-    if (!findPost.success) {
-      throw new HttpException(404, "삭제할 게시글이 존재하지 않습니다.");
-    }
-    const postData = findPost.data;
+    // mongoose 트랜잭션 세션 시작
+    const session = await this.MongoDB.startSession();
+    session.startTransaction();
 
-    // content 내에 이미지 경로만 추출하기 위한 정규식 작성
-    const imgRegex = /https:\/\/[^"']*?\.(?:png|jpg|jpeg|gif|PNG|JPG|JPEG|GIF)/g;
-    const contentImages = postData.content.match(imgRegex) || [];
+    try {
+      // 삭제할 게시글 조회
+      const findPost = await this.postDao.findOneById(id, session);
+      if (findPost.error) {
+        throw new HttpException(500, findPost.error);
+      }
+      if (!findPost.success) {
+        throw new HttpException(404, "삭제할 게시글이 존재하지 않습니다.");
+      }
+      const postData = findPost.data;
 
-    // AWS S3 삭제 파일
-    const allFiles: any[] = [...contentImages, ...(postData.fileUrl || [])];
-    await this.s3FileStorageService.deleteFiles(allFiles);
+      // 게시글 삭제
+      const { success, data: deletePostResult, error } = await this.postDao.deletePost(String(postData._id), session);
+      if (error) {
+        throw new HttpException(500, error);
+      }
+      if (!success) {
+        throw new HttpException(404, "삭제할 게시글이 존재하지 않습니다.");
+      }
 
-    const { success, data: deletePostResult, error } = await this.postDao.deletePost(String(postData._id));
-    if (error) {
-      throw new HttpException(500, error);
+      // content 내에 이미지 경로만 추출하기 위한 정규식 작성
+      const imgRegex = /https:\/\/[^"']*?\.(?:png|jpg|jpeg|gif|PNG|JPG|JPEG|GIF)/g;
+      const contentImages = postData.content.match(imgRegex) || [];
+
+      // AWS S3 삭제 파일
+      const allFiles: any[] = [...contentImages, ...(postData.fileUrl || [])];
+      await this.s3FileStorageService.deleteFiles(allFiles);
+
+      await session.commitTransaction();  // 삭제 성공 시 트랜잭션 커밋
+
+      return { success: true, data: deletePostResult };
+    } catch (error) {
+      await session.abortTransaction();  // 실패 시 트랜잭션 롤백
+      // HttpException으로 에러 발생 시
+      if (error instanceof HttpException) {
+        throw new HttpException(error.status, error.message, error?.error);
+      }
+
+      // 그 이외의 에러 발생 시
+      throw new HttpException(500, "### deletePost 서버 에러", error);
+    } finally {
+      // Mongo 트랜잭션 세션 종료
+      await session.endSession();
     }
-    if (!success) {
-      throw new HttpException(404, "삭제할 게시글이 존재하지 않습니다.");
-    }
-
-    return { success: true, data: deletePostResult };
   }
 }
