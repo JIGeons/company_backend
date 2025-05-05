@@ -204,6 +204,7 @@ export class UserService {
   }
 
   /**
+   * AccessToken 재발급 서비스
    * AccessToken 만료 시 RefreshToken을 사용하여 AccessToken을 재발급 하는 메서드
    * @param authUser
    * @param refreshToken
@@ -278,6 +279,13 @@ export class UserService {
     return result;
   }
 
+  /**
+   * 사용자 계정 확성화 서비스
+   * 비활성화된 계정의 사용자를 검증하고 활성화시키는 메서드
+   * @param accountId
+   * @param userPassword
+   * @param code
+   */
   public async verifyUserAccount (accountId: string, userPassword: string, code: string): Promise<Result> {
     console.log(accountId, userPassword, code);
 

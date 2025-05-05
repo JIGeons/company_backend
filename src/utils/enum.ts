@@ -10,7 +10,7 @@ export enum FileTypeEnum {
 }
 
 export enum RedisStoreKeyActionEnum {
-  LOGOUT = "LOGOUT",
+  LOGIN = "LOGIN",
   BLACKLIST = "BLACKLIST",
   REFRESH = "REFRESH",
 }

@@ -120,7 +120,7 @@ export const storeTokenToRedis = async (userId: string, accessToken: string, ref
 
   try {
     // redis에 저장
-    await storeToRedis(RedisStoreKeyActionEnum.LOGOUT, userId, accessData, JWT_EXPIRES);
+    await storeToRedis(RedisStoreKeyActionEnum.LOGIN, userId, accessData, JWT_EXPIRES);
     await storeToRedis(RedisStoreKeyActionEnum.REFRESH, userId, refreshData, JWT_EXPIRES);
 
     result.success = true;
@@ -134,7 +134,7 @@ export const storeTokenToRedis = async (userId: string, accessToken: string, ref
 }
 
 /**
- * Redis에서 Logout, Refresh 토큰을 삭제하는 메서드
+ * Redis에서 Login, Refresh 토큰을 삭제하는 메서드
  * @param userId - User 모델의 userId
  */
 export const deleteTokenToRedis = async (userId: string) => {
@@ -142,7 +142,7 @@ export const deleteTokenToRedis = async (userId: string) => {
 
   try {
     // redis에서 토큰 삭제 token이 keyname에 사용 되었으므로 token을 넘긴다.
-    const deleteAccessResult = await deleteToRedis(RedisStoreKeyActionEnum.LOGOUT, userId);
+    const deleteAccessResult = await deleteToRedis(RedisStoreKeyActionEnum.LOGIN, userId);
     const deleteRefreshResult = await deleteToRedis(RedisStoreKeyActionEnum.REFRESH, userId);
     console.log("delete Access Result: ", deleteAccessResult);
     console.log("delete Refresh Result: ", deleteRefreshResult);

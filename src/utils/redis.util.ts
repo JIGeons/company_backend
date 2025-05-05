@@ -6,13 +6,13 @@ import { RedisStoreKeyActionEnum } from "@utils/enum";
 
 /**
  * Key 이름을 조합하는 메서드
- * @param keyAction - RedisStoreKeyActionEnum['LOGOUT', 'BLACKLIST', 'REFRESH']
+ * @param keyAction - RedisStoreKeyActionEnum['LOGIN', 'REFRESH', 'BLACKLIST']
  * @param key - 유니크한 Redis key
  */
 export const createKeyName = (keyAction: RedisStoreKeyActionEnum, key: string) => {
   let keyName = `${keyAction}:${key}`;
   // key Action이 로그아웃인 경우 뒤에 ':session' 추가
-  if (keyAction === RedisStoreKeyActionEnum.LOGOUT) {
+  if (keyAction === RedisStoreKeyActionEnum.LOGIN) {
     keyName += ':session';
   }
 

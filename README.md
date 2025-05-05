@@ -164,7 +164,7 @@
 
 ### 🔹 Redis 기반 세션 저장 및 자동 로그아웃 처리 (Keyspace Notification 활용)
 
-- Redis를 활용하여 `LOGOUT`, `REFRESH`, `BLACKLIST` 상태를 관리하도록 설계하였습니다.
+- Redis를 활용하여 `LOGIN`, `REFRESH`, `BLACKLIST` 상태를 관리하도록 설계하였습니다.
 - 로그인 시 Access Token을 Redis에 저장하고, TTL 만료 시 Keyspace Notification 이벤트를 통해 자동 로그아웃을 처리하였습니다.
 - Refresh Token은 유저별로 Redis에 저장되며, 한 번 사용된 토큰은 폐기되어 재사용을 방지합니다.
 - 로그아웃 시, 해당 Access Token은 만료 시간까지 Redis의 `BLACKLIST`에 등록되어 더 이상 사용되지 않도록 차단하였습니다.
@@ -212,13 +212,13 @@
 ### 🔶 JWT 기반 인증 시스템 개선
 
 - 초기에는 단순 JWT 발급 방식이었으나, 보안 강화를 위해 Refresh Token Rotation 패턴으로 개선
-- Refresh Token 재발급 시 Redis `LOGOUT`, `REFRESH`에 저장 및 TTL을 갱신하고, 이전 토큰은 폐기하여 재사용 방지
+- Refresh Token 재발급 시 Redis `LOGIN`, `REFRESH`에 저장 및 TTL을 갱신하고, 이전 토큰은 폐기하여 재사용 방지
 - 로그아웃 시 Access Token을 Redis `BLACKLIST`에 등록되어 만료 시점까지 차단
 
 ### 🔶 **Redis를 활용한 자동 로그아웃 기능**
 
 - TTL 만료 이벤트 발생 시, Redis KeyName을 `prefix:key:suffix` 형태에서 `:` 기준으로 파싱
-- prefix가 `LOGOUT`인 경우, 5초간 유효한 임시 토큰을 발급하여 로그아웃 API를 자동 호출
+- prefix가 `LOGIN`인 경우, 5초간 유효한 임시 토큰을 발급하여 로그아웃 API를 자동 호출
 - 비정상 세션 종료를 방지하고, 만료 이벤트 기반으로 로그아웃을 자동화
 
 ### 🔶 **Jest 기반 테스트 코드 작성**

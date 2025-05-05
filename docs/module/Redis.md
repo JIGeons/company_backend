@@ -43,17 +43,17 @@ Prefix는 다음과 같은 Enum으로 정의되어 있고, 실제 key는 `'접�
 ```tsx
 // 수식어와 key값은 ‘:’를 통해 구분한다.
 export enum RedisStoreKeyActionEnum {
-  LOGOUT = "LOGOUT",
+  LOGIN = "LOGIN",
   BLACKLIST = "BLACKLIST",
   REFRESH = "REFRESH",
 }
 ```
 
-- `LOGOUT` 키의 경우, TTL 이벤트 처리를 위해 `:session` suffix를 추가한다.
+- `LOGIN` 키의 경우, TTL 이벤트 처리를 위해 `:session` suffix를 추가한다.
 
 ### 🔑 예시:
 
-- `LOGOUT:user-id:session`
+- `LOGIN:user-id:session`
 - `REFRESH:user-id`
 - `BLACKLIST:access-token`
 
