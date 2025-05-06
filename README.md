@@ -277,6 +277,7 @@
 
 ## 📦 모듈별 설계 방식
 
+**👉 [JWT-AUTH](./docs/module/JWT-AUTH.md)** </br>
 **👉 [Redis](./docs/module/Redis.md)** </br>
 **👉 [mail(SMTP)](./docs/module/SMTP-mail.md)**
 
