@@ -2,20 +2,20 @@
  * Logout Handler 통합 테스트
  */
 
-import { App } from "@/app";
-import { DIContainerSet, startTestServer } from "@tests/test-server";
-import { logoutHandler } from "@/listeners/logout.handler";
+import { App } from "../../../src/app";
+import { DIContainerSet, startTestServer } from "../../test-server";
+import { logoutHandler } from "../../../src/listeners/logout.handler";
 import jwt from 'jsonwebtoken';
-import { DB } from "@/database"
+import { DB } from "../../../src/database"
 
 // Routes
-import { UserRoute } from "@/routes/user.route";
+import { UserRoute } from "../../../src/routes/user.route";
 
 // Factory
-import { createLoggedInUser } from "@tests/factory/user.factory";
+import { createLoggedInUser } from "../../user/user.factory";
 
 // ENV
-import { ACCESS_SECRET } from "@/config";
+import { ACCESS_SECRET } from "../../../src/config";
 
 describe("Logout Handler 통합 테스트", () => {
   let app: App;

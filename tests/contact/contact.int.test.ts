@@ -4,22 +4,22 @@
 
 import request from "supertest";
 import mongoose from "mongoose";
-import { App } from '@/app';
-import { ContactRoute } from "@/routes/contact.route";
+import { App } from '../../src/app';
+import { ContactRoute } from "../../src/routes/contact.route";
 import {describe} from "node:test";
 import jwt from "jsonwebtoken";
 
 // Model
-import {connectToDatabases, DB} from '@/database';
+import {connectToDatabases, DB} from '../../src/database';
 const Contact = DB.MONGO.Contact;
 
 // Factory
-import { createContact } from "@tests/factory/contact.factory";
+import { createContact } from "./contact.factory";
 
 // ENV
-import { MONGO_URI, ACCESS_SECRET } from "@/config";
-import { AuthUser } from "@/interfaces/user.interface";
-import {connectToMongoDB} from "../../../src/database/mongo";
+import { MONGO_URI, ACCESS_SECRET } from "../../src/config";
+import { AuthUser } from "../../src/interfaces/user.interface";
+import {connectToMongoDB} from "../../src/database/mongo";
 
 describe('Contact 통합 테스트', () => {
   let app;

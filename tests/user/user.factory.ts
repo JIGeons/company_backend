@@ -2,7 +2,7 @@
  * User Factory 파일
  */
 
-import { DB } from '@/database';
+import { DB } from '../../src/database';
 import { CreateUserDto } from "../../src/dtos/mysql/user.dto";
 
 export const createUser = async (userRepo: any, overrides = {}) => {

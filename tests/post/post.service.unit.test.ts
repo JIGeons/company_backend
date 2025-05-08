@@ -1,50 +1,32 @@
 /**
  * Post Service Unit Test 파일
  */
-
-import 'reflect-metadata';
 import { describe } from "node:test";
 import { marked } from "marked";
 
-import { PostDao } from "@/daos/mongo/post.dao";
-import { PostService } from '@/services/post.service';
+import { PostService } from '../../src/services/post.service';
 
 // Interface
-import { FileStorageServiceInterface } from "@/interfaces/file.interface";
-import { HttpException } from "@/exceptions/httpException";
+import { HttpException } from "../../src/exceptions/httpException";
 
-import { createMockPost, mockPost, mockPostResult } from "@tests/factory/post.factory";
+import { createMockPost, mockPost, mockPostResult } from "./post.factory";
 import {Model} from "mongoose";
-import {PostDocument} from "../../../src/interfaces/post.interface";
+import {PostDocument} from "../../src/interfaces/post.interface";
 import {Container} from "typedi";
 
+// Mock 데이터
+import { mockFileStorageService } from "@tests/common/file/file.mock";
+import { mockPostDao } from "@tests/post/post.mock";
+
 // 모킹을 위한 jest.mock
-jest.mock('@/services/file.service');
+jest.mock('../../src/services/file.service');
 
 describe('PostService', () => {
   let postService: PostService;
-  let mockFileStorageService: jest.Mocked<FileStorageServiceInterface>;
   let mockPostModel = {};
-  let mockPostDao: jest.Mocked<PostDao>;
 
   beforeEach(() => {
     Container.set("PostModel", mockPostModel as Model<PostDocument>);
-    // S3FileStorageService를 mock instance로 생성
-    mockFileStorageService = {
-      deleteFile: jest.fn(),
-      deleteFiles: jest.fn(),
-      uploadFile: jest.fn(),
-    }
-
-    mockPostDao = {
-      findAll: jest.fn(),
-      findOneById: jest.fn(),
-      findOneByIdCanSave: jest.fn(),
-      findOneByRecentNumber: jest.fn(),
-      createPost: jest.fn(),
-      updatePost: jest.fn(),
-      deletePost: jest.fn(),
-    } as any;
 
     postService = new PostService(mockPostDao, mockFileStorageService);
   });

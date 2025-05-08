@@ -8,9 +8,7 @@ module.exports = {
   roots: ['<rootDir>/tests'], // Jest가 테스트를 찾을 디렉토리 목록. 기본값은 ["<rootDir>"].
   testMatch: [
     // 테스트 파일 경로 패턴 지정:
-    // tests 디렉토리 내부 integration, unit만 테스트 지정
-    '**/tests/integration/**/*.test.ts',
-    '**/tests/unit/**/*.test.ts'
+    '**/tests/**/*.test.ts',
   ],
   transform: {
     // .ts 또는 .tsx 파일을 ts-jest를 이용해 반환
