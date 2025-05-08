@@ -115,6 +115,7 @@ export class UserService {
         throw new HttpException(401, "비밀번호 5회 이상 틀려 계정이 비활성화 됩니다.");
       }
 
+      // 실패 정보 업데이트
       await this.userDao.update(user);
       return {
         success: false,
@@ -140,6 +141,7 @@ export class UserService {
     // Redis에 로그인 정보 저장 (자동 로그아웃 용)
     const storeResult = await storeTokenToRedis(userId, accessToken, refreshToken);
     if (!storeResult.success) {
+      // TODO:: Redis 저장 실패 시 전체 로그인 실패처리 -> 트랜잭션 롤백
       console.log("Redis 저장 실패: ", storeResult.error);
     }
 

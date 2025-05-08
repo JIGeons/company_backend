@@ -49,7 +49,7 @@ export const createTemporaryAccessToken = async (authUser: AuthUser) => {
 /**
  * ACCESS & REFRESH 토큰 발급
  */
-export const createAccessRefreshToken = async (authUser: AuthUser) => {
+export const createAccessRefreshToken = async (authUser: AuthUser): Promise<{ accessToken: string, refreshToken: string }> => {
   const accessToken = await createAccessToken(authUser);
   const refreshToken = await createRefreshToken(authUser);
 
