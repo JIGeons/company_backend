@@ -91,7 +91,7 @@ export class UserController {
     try {
       const { id } = req.params;
 
-      const deleteResult = await this.userService.deleteUser(id);
+      const deleteResult = await this.userService.deleteUser(Number(id));
 
       // 삭제 실패 시
       if (!deleteResult.success) {

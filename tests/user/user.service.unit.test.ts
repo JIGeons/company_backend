@@ -219,4 +219,31 @@ describe('UserService', () => {
       expect(response).toEqual({ success: true, data: user });
     });
   });
+
+  /**
+   * 유저 삭제 단위 테스트
+   */
+  describe("deleteUser", () => {
+    const userData = {
+      id: 1234,
+      userId: 'testId',
+      name: 'testName'
+    }
+
+    it ('Failed: 삭제할 유저가 없는 경우 실패 응답 반환', async () => {
+      mockUserDao.delete.mockResolvedValue({ success: false, data: null });
+
+      const response = await userService.deleteUser(userData.id);
+
+      expect(response).toEqual({ success: false, data: [], error: '삭제할 유저가 존재하지 않습니다.' });
+    });
+
+    it ('Success: 삭제에 성공한 경우 성공 응답 반환', async () => {
+      mockUserDao.delete.mockResolvedValue({ success: true, data: userData });
+
+      const response = await userService.deleteUser(userData.id);
+
+      expect(response).toEqual({ success: true, data: userData });
+    });
+  });
 });

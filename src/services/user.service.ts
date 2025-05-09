@@ -190,8 +190,8 @@ export class UserService {
    * 유저 삭제 서비스
    * @param id
    */
-  public async deleteUser (id: string): Promise<Result> {
-    const deleteUser = await this.userDao.delete(Number(id));
+  public async deleteUser (id: number): Promise<Result> {
+    const deleteUser = await this.userDao.delete(id);
     // 삭제 시 오류가 난 경우
     if (deleteUser.error) {
       throw new HttpException(500, deleteUser.error);
