@@ -5,14 +5,21 @@ import { describe } from "node:test";
 import bcrypt from "bcrypt";
 import { HttpException } from "@/exceptions/httpException";
 
+// Dto
 import { CreateUserDto } from "@/dtos/mysql/user.dto";
 
+// Interface
+import { AuthUser } from "@/interfaces/user.interface";
+
+// Service
 import { UserService } from "@/services/user.service";
 import * as TokenService from "@/services/token.service";
 
 // Mock 데이터
 import { mockMailService } from "@tests/common/mail/mail.mock";
 import { mockUserDao } from "./user.mock";
+import express from "express";
+import {storeBlackListToken} from "@/services/token.service";
 
 /**
  * UserService 단위 테스트
@@ -167,6 +174,49 @@ describe('UserService', () => {
           refreshToken: refreshToken,
         }
       });
+    });
+  });
+
+  /**
+   * 로그아웃 단위 테스트
+   */
+  describe("logout", () => {
+    const user: AuthUser = {
+      id: 1234,
+      userId: 'testId',
+      name: 'testName',
+    };
+    const accessToken = "mock-access-token";
+
+    it ('Failed - 1: 로그인 유저를 찾을 수 없는 경우 실패 응답을 반환한다.', async () => {
+      // 사용자 정보 없음
+      mockUserDao.findByUserId.mockResolvedValue({ success: false, data: null });
+
+      const response = await userService.logout(user, accessToken);
+
+      expect(response).toEqual({ success: false, data: [], error: "로그인 유저를 찾을 수 없습니다." });
+    });
+
+    it ('Failed - 2: 로그인 유저 정보 업데이트 중 에러 발생 시 500 오류를 반환한다.', async () => {
+      mockUserDao.findByUserId.mockResolvedValue({ success: true, data: user });
+      // 사용자 정보 업데이트 실패: 서버 에러
+      mockUserDao.update.mockResolvedValue({ success: false, data: null , error: 'User 업데이트 실패' });
+
+      await expect(userService.logout(user, accessToken))
+        .rejects.toThrow(new HttpException(500, 'Logout: User 업데이트 실패'));
+    });
+
+    it ('Success: 로그아웃 성공 응답 반환', async () => {
+      // 사용자 검색 및 업데이트 성공
+      mockUserDao.findByUserId.mockResolvedValue({ success: true, data: user });
+      mockUserDao.update.mockResolvedValue({ success: true, data: user });
+
+      // Redis 저장 및 삭제 서비스 성공 처리
+      jest.spyOn(TokenService, "storeBlackListToken").mockResolvedValue({ success: true, data: {} });
+      jest.spyOn(TokenService, "deleteTokenToRedis").mockResolvedValue({ success: true, data: {} });
+
+      const response = await userService.logout(user, accessToken);
+      expect(response).toEqual({ success: true, data: user });
     });
   });
 });

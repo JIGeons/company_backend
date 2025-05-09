@@ -172,7 +172,7 @@ export class UserService {
 
     // 업데이트 도중 에러 발생
     if (updateUserResult.error) {
-      throw new HttpException(500, updateUserResult.error);
+      throw new HttpException(500, `Logout: ${updateUserResult.error}`);
     }
 
     // accessToken을 blackList에 등록 ( id == -1 은 임시토큰이므로 블랙리스트 등록 X )
