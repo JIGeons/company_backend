@@ -1,5 +1,6 @@
 /**
  * User Factory 파일
+ * User 동적 테스트 데이터 생성
  */
 
 import { DB } from '../../src/database';

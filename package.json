@@ -9,7 +9,7 @@
     "start:test": "cross-env NODE_ENV=test nodemon",
     "start:prod": "cross-env NODE_ENV=prod nodemon",
     "test": "cross-env jest",
-    "test:unit": "cross-env UNIT_TEST=true jest tests/unit",
+    "test:unit": "cross-env UNIT_TEST=true jest -- tests/**/*.unit.test.ts",
     "test:recent": "jest --onlyChanged",
     "test:watch": "jest --watch",
     "docker:build": "docker build -t jiseong98/abc-backend:1.0.0 .",

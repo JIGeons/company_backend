@@ -15,8 +15,8 @@ import {PostDocument} from "../../src/interfaces/post.interface";
 import {Container} from "typedi";
 
 // Mock 데이터
-import { mockFileStorageService } from "@tests/common/file/file.mock";
-import { mockPostDao } from "@tests/post/post.mock";
+import { fileStorageServiceMock } from "@tests/common/file/file.mock";
+import { postDaoMock } from "@tests/post/post.mock";
 
 // 모킹을 위한 jest.mock
 jest.mock('../../src/services/file.service');
@@ -28,13 +28,13 @@ describe('PostService', () => {
   beforeEach(() => {
     Container.set("PostModel", mockPostModel as Model<PostDocument>);
 
-    postService = new PostService(mockPostDao, mockFileStorageService);
+    postService = new PostService(postDaoMock, fileStorageServiceMock);
   });
 
   describe('findAll()', async () => {
     it("전체 게시글 조회에 성공하고 데이터를 반환한다.", async () => {
       const mockPosts = [{id: 1, title: '테스트 게시글'}];
-      mockPostDao.findAll.mockResolvedValue({
+      postDaoMock.findAll.mockResolvedValue({
         success: true,
         data: mockPosts
       });
@@ -42,33 +42,33 @@ describe('PostService', () => {
       const result = await postService.findAll();
 
       expect(result).toEqual({ success: true, data: mockPosts });
-      expect(mockPostDao.findAll).toHaveBeenCalled();
+      expect(postDaoMock.findAll).toHaveBeenCalled();
     });
 
     it("전체 게시글 조회 내역이 없어서 404 오류를 반환한다.", async () => {
-      mockPostDao.findAll.mockResolvedValue({
+      postDaoMock.findAll.mockResolvedValue({
         success: false,
         data: []
       });
 
       await expect(postService.findAll()).rejects.toThrow('게시글을 찾을 수 없습니다.');
-      expect(mockPostDao.findAll).toHaveBeenCalled();
+      expect(postDaoMock.findAll).toHaveBeenCalled();
     })
 
     it("전체 게시글 조회 중 오류 발생으로 500 에러 반환", async () => {
-      mockPostDao.findAll.mockResolvedValue({
+      postDaoMock.findAll.mockResolvedValue({
         success: false,
         error: "전체 Post 조회 중 문제 발생"
       });
 
       await expect(postService.findAll()).rejects.toThrow('전체 Post 조회 중 문제 발생');
-      expect(mockPostDao.findAll).toHaveBeenCalled();
+      expect(postDaoMock.findAll).toHaveBeenCalled();
     })
   });
 
   describe("getPostByIdWithRender()", async () => {
     it("단일 게시글 조회에 성공하고 데이터를 반환한다.", async () => {
-      mockPostDao.findOneByIdCanSave.mockResolvedValue({
+      postDaoMock.findOneByIdCanSave.mockResolvedValue({
         success: true,
         data: mockPostResult
       });
@@ -82,7 +82,7 @@ describe('PostService', () => {
     });
 
     it("단일 게시글 조회 시 존재하지 않는 데이터를 조회하면 404 에러를 던진다.", async () => {
-      mockPostDao.findOneByIdCanSave.mockResolvedValue({
+      postDaoMock.findOneByIdCanSave.mockResolvedValue({
         success: false,
         data: []
       });
@@ -94,7 +94,7 @@ describe('PostService', () => {
     });
 
     it("단일 게시글 조회 시 DB 조회 오류가 생긴 경우 500 에러를 던진다.", async () => {
-      mockPostDao.findOneByIdCanSave.mockResolvedValue({
+      postDaoMock.findOneByIdCanSave.mockResolvedValue({
         success: false,
         error: "Id로 Post 조회 중 문제 발생"
       });
@@ -109,7 +109,7 @@ describe('PostService', () => {
   describe("createPost()", async () => {
     it("게시글 생성에 성공하고, 데이터를 반환한다.", async () => {
       // 최근 게시물 조회 mock 설정 (데이터 없음)
-      mockPostDao.findOneByRecentNumber.mockResolvedValue({
+      postDaoMock.findOneByRecentNumber.mockResolvedValue({
         success: true,
         data: null
       });
@@ -120,7 +120,7 @@ describe('PostService', () => {
 
       // 게시물 생성 결과 mock 생성
       const mockPost = createMockPost({ title, content, fileUrl });
-      mockPostDao.createPost.mockResolvedValue({
+      postDaoMock.createPost.mockResolvedValue({
         success: true,
         data: mockPost
       });
@@ -134,7 +134,7 @@ describe('PostService', () => {
 
     it("게시글 유효성 검사에 실패하여 400에러를 반환한다.", async () => {
       // 최근 게시물 조회 mock 설정 (데이터 없음)
-      mockPostDao.findOneByRecentNumber.mockResolvedValue({
+      postDaoMock.findOneByRecentNumber.mockResolvedValue({
         success: true,
         data: null
       });
@@ -149,7 +149,7 @@ describe('PostService', () => {
 
     it("게시글 생성 중 DB 오류가 발생하여 500에러를 반환한다.", async () => {
       // 최근 게시물 조회 mock 설정 (데이터 없음)
-      mockPostDao.findOneByRecentNumber.mockResolvedValue({
+      postDaoMock.findOneByRecentNumber.mockResolvedValue({
         success: true,
         data: null
       });
@@ -160,7 +160,7 @@ describe('PostService', () => {
       const errorMsg = "Create Post 중 문제 발생"
 
       // 게시물 생성 결과 mock 생성 (DB 생성 실패)
-      mockPostDao.createPost.mockResolvedValue({
+      postDaoMock.createPost.mockResolvedValue({
         success: false,
         error: errorMsg
       });

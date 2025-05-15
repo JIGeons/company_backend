@@ -1,13 +1,13 @@
 import { App } from '@/app';
 
+import { connectToDatabases } from "@/database";
+import { createMailTransporter } from "@config/mail.config";
+
+// Routes
 import { ContactRoute } from '@routes/contact.route';
 import { PostRoute } from '@routes/post.route';
 import { UserRoute } from '@routes/user.route';
 import { UploadRoute } from '@routes/upload.route';
-
-import { connectToDatabases } from "@/database";
-import { Routes } from "@interfaces/routes.interface";
-import { createMailTransporter } from "@config/mail.config";
 
 // route생성 전 데이터 베이스 먼저 연결
 connectToDatabases()

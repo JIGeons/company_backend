@@ -2,7 +2,7 @@
  * User Service 계층
  */
 
-import {Service} from "typedi";
+import {Inject, Service} from "typedi";
 import {HttpException} from "@exceptions/httpException";
 import bcrypt from "bcrypt";
 import axios from "axios";
@@ -34,13 +34,14 @@ import { CreateUserDto, UpdateUserDto } from "@/dtos/mysql/user.dto";
 // Redis
 import { getDataToRedis } from "@services//redis.service";
 import {generateVerificationCode} from "@utils/utils";
+import {MailServiceInterface} from "@interfaces/mail.interface";
 
 @Service()
 export class UserService {
   // 생성자 주입을 통해 UserDao 의존성 주입
   constructor(
     private readonly userDao : UserDao,
-    private readonly mailService: MailService,
+    private readonly mailService: MailServiceInterface,
   ) {}
 
   /**
@@ -234,7 +235,7 @@ export class UserService {
       // 엑세스 토큰 재발급 요청 시 쿠키에 저장된 refresh 토큰과 redis에 저장된 refresh 토큰이 다른 경우
       // refresh 토큰을 탈취하여 accessToken을 비정상적으로 발급하려는 목적으로 간주.
       // 비정상 로그인 에러와 함께 User가 가입할때 등록한 메일로 비정상 로그인 메일 발송
-      const {success: getResult, data: userInfo} = await this.userDao.findByUserId(authUser.userId);
+      const { success: getResult, data: userInfo } = await this.userDao.findByUserId(authUser.userId);
 
       // user가 존재하지 않는 경우 비정상 접근 response
       if (!getResult) {
@@ -282,7 +283,7 @@ export class UserService {
   }
 
   /**
-   * 사용자 계정 확성화 서비스
+   * 사용자 계정 활성화 서비스
    * 비활성화된 계정의 사용자를 검증하고 활성화시키는 메서드
    * @param accountId
    * @param userPassword

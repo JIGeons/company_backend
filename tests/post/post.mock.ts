@@ -3,7 +3,7 @@
  */
 import { PostDao } from "@/daos/mongo/post.dao";
 
-export const mockPostDao: jest.Mocked<PostDao> = {
+export const postDaoMock: jest.Mocked<PostDao> = {
   findAll: jest.fn(),
   findOneById: jest.fn(),
   findOneByIdCanSave: jest.fn(),

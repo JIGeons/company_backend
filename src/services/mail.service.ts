@@ -9,7 +9,7 @@ import { SERVER_URI } from "@/config";
 import { mailConfig } from "@config/mail.config";
 
 // interface
-import { MailOptions } from "@interfaces/mail.interface";
+import { MailServiceInterface, MailOptions } from "@interfaces/mail.interface";
 import { Result } from "@interfaces/result.interface";
 import { User } from "@interfaces/user.interface";
 
@@ -21,7 +21,7 @@ import { formatDateToDateAMPM, generateVerificationCode } from "@utils/utils";
  * 메일 서비스 Class
  */
 @Service()
-export class MailService {
+export class MailService implements MailServiceInterface {
   constructor(
     // 메일 Transporter 의존성 주입
     @Inject("mailTransporter")
