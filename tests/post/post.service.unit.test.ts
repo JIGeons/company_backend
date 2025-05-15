@@ -15,8 +15,12 @@ import {PostDocument} from "../../src/interfaces/post.interface";
 import {Container} from "typedi";
 
 // Mock 데이터
+import { mongoServiceMock } from "@tests/common/database/mongo.mock";
 import { fileStorageServiceMock } from "@tests/common/file/file.mock";
 import { postDaoMock } from "@tests/post/post.mock";
+
+// Fixtures
+import { postFixture } from "./post.fixture";
 
 // 모킹을 위한 jest.mock
 jest.mock('../../src/services/file.service');
@@ -28,10 +32,10 @@ describe('PostService', () => {
   beforeEach(() => {
     Container.set("PostModel", mockPostModel as Model<PostDocument>);
 
-    postService = new PostService(postDaoMock, fileStorageServiceMock);
+    postService = new PostService(postDaoMock, mongoServiceMock, fileStorageServiceMock);
   });
 
-  describe('findAll()', async () => {
+  describe('findAll()', () => {
     it("전체 게시글 조회에 성공하고 데이터를 반환한다.", async () => {
       const mockPosts = [{id: 1, title: '테스트 게시글'}];
       postDaoMock.findAll.mockResolvedValue({
@@ -66,7 +70,7 @@ describe('PostService', () => {
     })
   });
 
-  describe("getPostByIdWithRender()", async () => {
+  describe("getPostByIdWithRender()", () => {
     it("단일 게시글 조회에 성공하고 데이터를 반환한다.", async () => {
       postDaoMock.findOneByIdCanSave.mockResolvedValue({
         success: true,
@@ -106,7 +110,7 @@ describe('PostService', () => {
     });
   });
 
-  describe("createPost()", async () => {
+  describe("createPost()", () => {
     it("게시글 생성에 성공하고, 데이터를 반환한다.", async () => {
       // 최근 게시물 조회 mock 설정 (데이터 없음)
       postDaoMock.findOneByRecentNumber.mockResolvedValue({
@@ -169,24 +173,47 @@ describe('PostService', () => {
     });
   });
 
-  describe("updatePost()", async () => {
-    it("게시글 수정에 성공하고, 데이터를 반환한다.", async () => {
-      const id = "1234";
-      const title = "update test title";
-      const content = "update test content";
-      const fileUrl: string[] = [];
-    });
+  describe("updatePost()", () => {
+    const updatePostMock = {
+      ...postFixture,
+      id: "1234",
+      title: "update test title",
+      content: "update test content",
+      fileUrl: ['']
+    }
 
     it("수정할 게시글이 존재하지 않아 404에러를 반환한다.", async () => {
+      // 수정할 게시글 조회 실패
+      postDaoMock.findOneById.mockResolvedValue({ success: false, data: null });
 
+      await expect(postService.updatePost(updatePostMock.id, updatePostMock.title, updatePostMock.content, updatePostMock.fileUrl))
+        .rejects.toThrow(new HttpException(404, "수정할 게시글이 존재하지 않습니다."));
     });
 
     it("게시글 수정 중 DB 오류가 발생하여 500에러를 반환한다.", async () => {
+      // 수정할 게시글 조회 성공
+      postDaoMock.findOneById.mockResolvedValue({ success: true, data: updatePostMock });
 
+      // 게시글 수정 실패 서버 에러
+      postDaoMock.updatePost.mockResolvedValue({ success: false, data: null, error: "Update Post 중 문제 발생" });
+
+      await expect(postService.updatePost(updatePostMock.id, updatePostMock.title, updatePostMock.content, updatePostMock.fileUrl))
+        .rejects.toThrow(new HttpException(500, "Update Post 중 문제 발생"));
+    });
+
+    it("게시글 수정에 성공하고, 데이터를 반환한다.", async () => {
+      // 수정할 게시글 조회 성공
+      postDaoMock.findOneById.mockResolvedValue({ success: true, data: updatePostMock });
+
+      // 게시글 수정 성공
+      postDaoMock.updatePost.mockResolvedValue({ success: true, data: updatePostMock });
+
+      const response = await postService.updatePost(updatePostMock.id, updatePostMock.title, updatePostMock.content, updatePostMock.fileUrl);
+      expect(response).toEqual({ success: true, data: updatePostMock });
     });
   });
 
-  describe("deletePost()", async () => {
+  describe("deletePost()", () => {
 
   });
 });
