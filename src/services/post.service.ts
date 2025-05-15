@@ -12,6 +12,7 @@ import { DB } from '@/database';
 
 // Interface
 import { Result } from "@interfaces/result.interface";
+import { MongoServiceInterface } from "@interfaces/database.interface";
 import { FileStorageServiceInterface } from "@interfaces/file.interface";
 
 // Service
@@ -28,10 +29,9 @@ import { getClientIp } from "@utils/getClientIp";
 
 @Service()
 export class PostService {
-  private readonly MongoDB = DB.MONGO.mongoose;
-
   constructor(
     private readonly postDao: PostDao,
+    private readonly mongoService: MongoServiceInterface,
 
     // 인터페이스 기반 의존성 주입 (구현체: S3FileStorageService)
     @Inject(() => S3FileStorageService)
@@ -139,10 +139,7 @@ export class PostService {
 
   public async updatePost(id: string, title: string, content: string, fileUrl: string[]): Promise<Result> {
     // mongoose 트랜잭션 세션 시작
-    const session = await this.MongoDB.startSession();
-    session.startTransaction();
-
-    try {
+    return await this.mongoService.withTransaction(async (session) => {
       const findPost = await this.postDao.findOneById(id, session);
       if (findPost.error) {
         throw new HttpException(500, findPost.error);
@@ -151,7 +148,6 @@ export class PostService {
         throw new HttpException(404, "수정할 게시글이 존재하지 않습니다.");
       }
       const postData = findPost.data;
-
       // updatePostDto 객체 생성
       const updatePostDto = plainToInstance(UpdatePostDto, {
         id: String(postData._id),  // mongoose 객체 id타입을 string 형으로 변환.
@@ -163,11 +159,11 @@ export class PostService {
       // updatePostDto 유효성 검사
       const updateValidateError = await validate(updatePostDto);
       if (updateValidateError.length > 0) {
-        const errorField = updateValidateError.map( validate => validate.property );
+        const errorField = updateValidateError.map(validate => validate.property);
         throw new HttpException(400, "잘못된 입력값입니다.", errorField);
       }
 
-      const { success, data: updatePostResult, error } = await this.postDao.updatePost(updatePostDto, session);
+      const {success, data: updatePostResult, error} = await this.postDao.updatePost(updatePostDto, session);
       if (error) {
         throw new HttpException(500, error);
       }
@@ -190,31 +186,13 @@ export class PostService {
       const allDeletedFiles = [...deletedImages, ...deletedFiles];
       await this.s3FileStorageService.deleteFiles(allDeletedFiles);
 
-      // 트랜잭션 커밋
-      await session.commitTransaction();
-
       return { success: true, data: updatePostResult };
-    } catch (error) {
-      // 트랜잭션 롤백
-      await session.abortTransaction();
-
-      if (error instanceof HttpException) {
-        throw new HttpException(error.status, error.message, error?.error);
-      }
-
-      throw new HttpException(500, "### UpdatePost 서버 에러", error);
-    } finally {
-      // Mongo 트랜잭션 session 종료
-      await session.endSession();
-    }
+    });
   }
 
   public async deletePost(id: string) {
-    // mongoose 트랜잭션 세션 시작
-    const session = await this.MongoDB.startSession();
-    session.startTransaction();
-
-    try {
+    // Mongo 트랜잭션 내에서 실행
+    return await this.mongoService.withTransaction( async (session) => {
       // 삭제할 게시글 조회
       const findPost = await this.postDao.findOneById(id, session);
       if (findPost.error) {
@@ -245,18 +223,6 @@ export class PostService {
       await session.commitTransaction();  // 삭제 성공 시 트랜잭션 커밋
 
       return { success: true, data: deletePostResult };
-    } catch (error) {
-      await session.abortTransaction();  // 실패 시 트랜잭션 롤백
-      // HttpException으로 에러 발생 시
-      if (error instanceof HttpException) {
-        throw new HttpException(error.status, error.message, error?.error);
-      }
-
-      // 그 이외의 에러 발생 시
-      throw new HttpException(500, "### deletePost 서버 에러", error);
-    } finally {
-      // Mongo 트랜잭션 세션 종료
-      await session.endSession();
-    }
+    });
   }
 }
