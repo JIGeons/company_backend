@@ -6,7 +6,7 @@ import bcrypt from "bcrypt";
 import { HttpException } from "@/exceptions/httpException";
 
 // Dto
-import { CreateUserDto } from "@/dtos/mysql/user.dto";
+import {CreateUserDto, UpdateUserDto} from "@/dtos/mysql/user.dto";
 
 // Interface
 import { AuthUser, User } from "@/interfaces/user.interface";
@@ -336,24 +336,64 @@ describe('UserService', () => {
    * 사용자 계정 활성화 단위 테스트
    */
   describe("verifyUserAccount", () => {
+    const accountId = "testId";
+    const userPassword = "testPassword";
+    const code = "testCode";
     it ('Failed - 1: 입력 정보의 사용자를 찾을 수 없는 경우 404 오류 반환', async () => {
+      // 사용자 정보 찾을 수 없음 응답
+      userDaoMock.findByUserIdWithPW.mockResolvedValue({ success: false, data: null });
 
+      await expect(userService.verifyUserAccount(accountId, userPassword, code))
+        .rejects.toThrow(new HttpException(404, "입력한 정보의 사용자를 찾을 수 없습니다."));
     });
 
     it ('Failed - 2: 입력한 비밀번호가 동일하지 않은 경우 400 오류 반환', async () => {
+      const hashedPassword = await bcrypt.hash(userPassword + "Failed", 10);
+      const userResult = { ...userFixtures, password: hashedPassword };
+      // 사용자 정보 찾을 수 없음 응답
+      userDaoMock.findByUserIdWithPW.mockResolvedValue({ success: true, data: userResult });
 
+      await expect(userService.verifyUserAccount(accountId, userPassword, code))
+        .rejects.toThrow(new HttpException(400, "입력한 비밀번호가 일치하지 않습니다."));
     });
 
     it ('Failed - 3: 잘못된 인증 code로 접근한 경우 400 오류 반환', async () => {
+      const hashedPassword = await bcrypt.hash(userPassword, 10);
+      const userResult = { ...userFixtures, password: hashedPassword };
+      // 사용자 정보 찾을 수 없음 응답
+      userDaoMock.findByUserIdWithPW.mockResolvedValue({ success: true, data: userResult });
 
+      await expect(userService.verifyUserAccount(accountId, userPassword, code))
+        .rejects.toThrow(new HttpException(400, "잘못된 code로의 접근입니다. 다시 확인해주세요."));
     });
 
     it ('Failed - 4: 사용자 정보 업데이트(계정 활성화) 실패 시 403 오류 반환', async () => {
+      const hashedPassword = await bcrypt.hash(userPassword, 10);
+      const userResult = { ...userFixtures, password: hashedPassword, verificationCode: code };
+      // 사용자 정보 찾을 수 없음 응답
+      userDaoMock.findByUserIdWithPW.mockResolvedValue({ success: true, data: userResult });
 
+      // 사용자 정보 업데이트 실패
+      userDaoMock.update.mockResolvedValue({ success: false, data: null });
+
+      await expect(userService.verifyUserAccount(accountId, userPassword, code))
+        .rejects.toThrow(new HttpException(403, "사용자의 정보를 수정할 수 없습니다."));
     });
 
     it ('Success: 사용자 인증 완료 후 계정 활성화에 성공한 경우 Success 플래그와 업데이트된 사용자 정보 반환', async () => {
+      const hashedPassword = await bcrypt.hash(userPassword, 10);
+      const userResult = { ...userFixtures, password: hashedPassword, verificationCode: code };
+      // 사용자 정보 찾을 수 없음 응답
+      userDaoMock.findByUserIdWithPW.mockResolvedValue({ success: true, data: userResult });
 
+      // 사용자 정보 업데이트 성공
+      userDaoMock.update.mockResolvedValue({ success: true, data: userResult });
+
+      const response = await userService.verifyUserAccount(accountId, userPassword, code);
+      expect(response).toEqual({
+        success: true,
+        data: userResult,
+      })
     });
   });
 });

@@ -290,8 +290,6 @@ export class UserService {
    * @param code
    */
   public async verifyUserAccount (accountId: string, userPassword: string, code: string): Promise<Result> {
-    console.log(accountId, userPassword, code);
-
     // 사용자 정보 조회
     const getUserInfo = await this.userDao.findByUserIdWithPW(accountId);
     if (getUserInfo.error) {
@@ -303,10 +301,8 @@ export class UserService {
     }
 
     const user: User = getUserInfo.data;
-    console.log(user.password);
     // 암호화된 비밀번호가 동일한지 비교
     const isValidPassword = await bcrypt.compare(userPassword, user.password!);
-    console.log(isValidPassword);
     // 비밀번호가 동일하지 않은 경우 400 에러 반환
     if (!isValidPassword) {
       console.log("### 사용자 재활성화 실패: 입력한 비밀번호가 일치하지 않습니다.");
