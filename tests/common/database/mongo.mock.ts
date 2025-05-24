@@ -7,6 +7,7 @@ import { ClientSession } from "mongoose";
 
 // MongoService mock 구현
 export const mongoServiceMock = {
+  // transaction mock 구현
   withTransaction: jest.fn(<T>(callback: (session: ClientSession) => Promise<T>) => {
     return callback({} as ClientSession); // 최소 mockSession
   }),

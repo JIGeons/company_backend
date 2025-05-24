@@ -214,6 +214,39 @@ describe('PostService', () => {
   });
 
   describe("deletePost()", () => {
+    const deletePostMock = {
+      ...postFixture,
+      id: "1234",
+      title: "delete test title",
+      content: "delete test content",
+      fileUrl: ['']
+    }
+    it("삭제할 게시글이 존재하지 않는 경우 404에러를 반환한다.", async() => {
+      // 삭제할 게시글 조회 실패
+      postDaoMock.findOneById.mockResolvedValue({ success: false, data: null });
 
+      await expect(postService.deletePost(deletePostMock.id))
+        .rejects.toThrow(new HttpException(404, "삭제할 게시글이 존재하지 않습니다."));
+    });
+
+    it("게시글 삭제 중 서버 에러가 발생한 경우 500에러를 반환한다.", async() => {
+      // 삭제할 게시글 조회 성공
+      postDaoMock.findOneById.mockResolvedValue({ success: true, data: deletePostMock });
+      // 게시글 삭제 중 서버 에러 발생
+      postDaoMock.deletePost.mockResolvedValue({ success: false, data: null, error: "Delete Post 중 문제 발생" });
+
+      await expect(postService.deletePost(deletePostMock.id))
+        .rejects.toThrow(new HttpException(500, "Delete Post 중 문제 발생"));
+    });
+
+    it("게시글 삭제에 성공하고, 데이터를 반환한다.", async() => {
+      // 삭제할 게시글 조회 성공
+      postDaoMock.findOneById.mockResolvedValue({ success: true, data: deletePostMock });
+      // 게시글 삭제 중 서버 에러 발생
+      postDaoMock.deletePost.mockResolvedValue({ success: true, data: deletePostMock });
+
+      const response = await postService.deletePost(deletePostMock.id);
+      expect(response).toEqual({ success: true, data: deletePostMock });
+    });
   });
 });

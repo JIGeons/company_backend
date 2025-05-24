@@ -218,9 +218,7 @@ export class PostService {
 
       // AWS S3 삭제 파일
       const allFiles: any[] = [...contentImages, ...(postData.fileUrl || [])];
-      await this.s3FileStorageService.deleteFiles(allFiles);
-
-      await session.commitTransaction();  // 삭제 성공 시 트랜잭션 커밋
+      await this.s3FileStorageService.deleteFiles(allFiles);  // 파일 삭제 실패 시 error throw
 
       return { success: true, data: deletePostResult };
     });
