@@ -40,10 +40,10 @@ export class S3FileStorageService implements FileStorageServiceInterface {
   }
 
   // S3 파일 하나 삭제
-  async deleteFile(url: string): Promise<void> {
+  public async deleteFile(url: string): Promise<void> {
     const key = this.getS3KeyFromUrl(url);
     // key값이 존재하지 않거나 s3객체가 존재하지 않으면 return;
-    if (!key) return;
+    if (!key) throw new Error("Key not found.");
 
     try {
       await this.s3Client.send(new DeleteObjectCommand({
@@ -57,19 +57,19 @@ export class S3FileStorageService implements FileStorageServiceInterface {
   }
 
   // S3 파일 반복 삭제
-  async deleteFiles(urls: string[]): Promise<void> {
+  public async deleteFiles(urls: string[]): Promise<void> {
     try {
       for (const url of urls) {
         await this.deleteFile(url);
       }
     } catch (error) {
       // S3 파일을 삭제하다가 에러가 난 경우
-      throw new Error(`[S3] 파일 삭제 중 에러 발생 ( Error: ${JSON.stringify(error)} )`);
+      throw new Error(`[S3] 파일 삭제 중 에러 발생`);
     }
   }
 
   // S3 이미지/파일 업로드
-  async uploadFile(file: ReqFile, fileName: string, type: FileTypeEnum): Promise<Result> {
+  public async uploadFile(file: ReqFile, fileName: string, type: FileTypeEnum): Promise<Result> {
     // S3에 Upload할 파일 객체 생성
     const command: PutObjectCommandInput = {
       Bucket: AWS_BUCKET_NAME,

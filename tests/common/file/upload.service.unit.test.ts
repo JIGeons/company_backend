@@ -2,15 +2,14 @@
  * Upload Service Unit Test 파일
  */
 
-import 'reflect-metadata' // typedi를 쓸 때 필요함
-import { UploadService } from "../../../src/services/upload.service";
-import { S3FileStorageService } from "../../../src/services/file.service";
+import { UploadService } from "@/services/upload.service";
+import { S3FileStorageService } from "@/services/file.service";
 import { createMockReqFile } from "./file.factory";
-import { FileTypeEnum } from "../../../src/utils/enum";
+import { FileTypeEnum } from "@/utils/enum";
 import { describe } from "node:test";
 
 // 모킹을 위한 jest.mock (class 자체를 대체하진 않고 instance만 목업)
-jest.mock("../../../src/services/file.service")
+jest.mock("@/services/file.service")
 
 describe('UploadService', () => {
   let uploadService: UploadService;

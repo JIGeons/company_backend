@@ -6,6 +6,7 @@
 import { DB } from '../../src/database';
 import { CreateUserDto } from "../../src/dtos/mysql/user.dto";
 
+// 통합 테스트 시 사용자 정보 생성
 export const createUser = async (userRepo: any, overrides = {}) => {
   const userData = {
     "id": 12345,
@@ -20,6 +21,7 @@ export const createUser = async (userRepo: any, overrides = {}) => {
   return await userRepo.save(user);
 }
 
+// 로그인 한 사용자 생성
 export const createLoggedInUser = async (userRepo: any, overrides = {}) => {
   const userData = {
     "id": 12345,
