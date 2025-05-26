@@ -1,5 +1,6 @@
 /**
  * Contact Factory 파일
+ * Contact 동적 테스트 데이터
  */
 import ContactModel from '../../src/database/mongo/models/contact.model';
 

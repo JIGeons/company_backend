@@ -51,7 +51,7 @@ export class ContactDao {
     }
   }
 
-  async create(contactData: CreateContactDto) {
+  async create(contactData: CreateContactDto): Promise<Result> {
     try {
       const contact = await new this.Contact(contactData).save();
 
@@ -65,7 +65,7 @@ export class ContactDao {
     }
   }
 
-  async updateById(id: string, updateData: Partial<CreateContactDto>) {
+  async updateById(id: string, updateData: Partial<CreateContactDto>): Promise<Result> {
     try {
       const updateContactResult = await this.Contact.findByIdAndUpdate(id, updateData, { new: true }).lean();
 

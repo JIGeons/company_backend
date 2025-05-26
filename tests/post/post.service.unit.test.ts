@@ -32,6 +32,7 @@ describe('PostService', () => {
   beforeEach(() => {
     Container.set("PostModel", mockPostModel as Model<PostDocument>);
 
+    // 테스트용 PostService 객체 생성
     postService = new PostService(postDaoMock, mongoServiceMock, fileStorageServiceMock);
   });
 

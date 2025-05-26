@@ -60,9 +60,10 @@ export class ContactService {
       throw new HttpException(500, error);
     }
 
-    // contact 가 존재하지 않는 경우 error
+    // contact 생성에 실패한 경우 error
     if (!success) {
-      throw new HttpException(404, '문의가 생성되지 않았습니다.');
+      // 422: Unprocessable Entity
+      throw new HttpException(422, '문의가 생성되지 않았습니다.');
     }
 
     return { success: true, data: contact };
@@ -70,14 +71,14 @@ export class ContactService {
 
   // Contact 수정
   public async updateContact(updateContactDto: UpdateContactDto): Promise<Result> {
-    const { success, data: contact, error } = await this.contactDao.updateById(updateContactDto.id, updateContactDto);
+    const { success, data: contact, error } = await this.contactDao.updateById(updateContactDto._id, updateContactDto);
 
     if (error) {
       throw new HttpException(500, error);
     }
 
     if (!success) {
-      throw new HttpException(404, '문의 수정에 실패했습니다.');
+      throw new HttpException(404, '수정할 문의글을 찾을 수 없어 수정에 실패했습니다.');
     }
 
     return { success: true, data: contact };

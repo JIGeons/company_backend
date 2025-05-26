@@ -28,7 +28,7 @@ export class CreateContactDto {
 export class UpdateContactDto {
   @IsNotEmpty()
   @IsString()
-  public id!: string;
+  public _id!: string;
 
   @IsOptional()
   @IsString()
