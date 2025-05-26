@@ -5,6 +5,10 @@ import { HttpException } from '@exceptions/httpException';
 export const ErrorMiddleware: ErrorRequestHandler = (err: Error, req: Request, res: Response, _next: NextFunction) => {
   try {
     if (err instanceof HttpException) {
+      if (err.status === 500) {
+        console.error(err);
+      }
+
       res.status(err.status).json({
         success: false,
         message: err.message,

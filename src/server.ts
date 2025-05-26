@@ -12,7 +12,10 @@ import { UploadRoute } from '@routes/upload.route';
 // route생성 전 데이터 베이스 먼저 연결
 connectToDatabases()
   // routes 생성 전 의존성 생성 메일 Transport 생성 및 Container 등록
-  .then(() => { createMailTransporter(); })
+  .then(() => {
+    createMailTransporter();
+    console.log("Mail Transporter 의존성 등록 완료");
+  })
   .then(() => {
     console.log("DB 연결 완료 이후 앱 실행");
 

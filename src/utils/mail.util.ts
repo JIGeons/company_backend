@@ -12,7 +12,7 @@ import ejs from 'ejs';
  */
 export async function renderMailTemplate(templateName: string, data: Record<string, any>): Promise<string> {
   // '.src/'로 시작하는 template path  생성
-  const templatePath = path.resolve(__dirname, `../../templates/mail/${templateName}.template.ejs`);
+  const templatePath = path.resolve(__dirname, `../templates/mail/${templateName}.template.ejs`);
 
   try {
     // 템플릿 렌더링

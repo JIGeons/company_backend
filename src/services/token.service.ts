@@ -19,7 +19,8 @@ export const createAccessToken = async (authUser: AuthUser) => {
   return jwt.sign(
     authUser,
     ACCESS_SECRET,
-    { expiresIn: JWT_ACCESS_EXPIRE }  // accessToken 만료 시간 15분 설정
+    // { expiresIn: JWT_ACCESS_EXPIRE }  // accessToken 만료 시간 15분 설정
+    { expiresIn: '1s' }  // accessToken 만료 시간 15분 설정
   )
 }
 
@@ -63,11 +64,14 @@ export const createAccessRefreshToken = async (authUser: AuthUser): Promise<{ ac
  * 토큰 인증하기
  */
 export const verifyToken = async (token: string, type: string) => {
+  console.log(`token-type: ${type}`);
+
   const result = {
     success: true,
     authHeader: {} as AuthHeader,
     authUser: {},
-    code: 200, message: ''
+    code: 200, message: '',
+    error: null as any
   };
   const secretKey = type === TokenTypeEnum.ACCESS ? ACCESS_SECRET : REFRESH_SECRET;
 
@@ -75,10 +79,12 @@ export const verifyToken = async (token: string, type: string) => {
     // AccessToken 인증
     const decoded = jwt.verify(token, secretKey) as userTokenInfo;
     result.success = true;
+
     result.authHeader = {
       iat: decoded.iat,
       exp: decoded.exp
     } as AuthHeader;
+
     result.authUser = {
       id: decoded.id,
       userId: decoded.userId,
@@ -86,6 +92,7 @@ export const verifyToken = async (token: string, type: string) => {
     } as AuthUser;
   } catch (err) {
     result.success = false;
+    result.error = err;
     // 토큰은 맞지만 유효기간이 만료된 경우, 401
     if (err instanceof TokenExpiredError) {
       result.code = 401;
@@ -99,7 +106,7 @@ export const verifyToken = async (token: string, type: string) => {
     // 기타 예상치 못한 에러, 500
     else if (err instanceof Error) {
       result.code = 500;
-      result.message = "인증 중 서버 오류가 발생했습니다.";
+      result.message = "토큰 검사 중 서버 오류가 발생했습니다.";
     }
   }
 

@@ -93,8 +93,8 @@ export const RefreshTokenMiddleware: RequestHandler = async (req: Request, res: 
   }
 
   // refreshToken 유효성 검사
-  const { success, authUser, code, message } = await verifyToken(refreshToken, TokenTypeEnum.REFRESH);
-  if (!success) return next(new HttpException(code, message));
+  const { success, authUser, code, message, error } = await verifyToken(refreshToken, TokenTypeEnum.REFRESH);
+  if (!success) return next(new HttpException(code, message, error));
 
   // 사용자 IP 조회
   const clientIp = requestIp.getClientIp(req);

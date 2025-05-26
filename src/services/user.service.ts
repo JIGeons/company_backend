@@ -34,13 +34,14 @@ import { CreateUserDto, UpdateUserDto } from "@/dtos/mysql/user.dto";
 // Redis
 import { getDataToRedis } from "@services//redis.service";
 import {generateVerificationCode} from "@utils/utils";
-import {MailServiceInterface} from "@interfaces/mail.interface";
+import {MailOptions, MailServiceInterface} from "@interfaces/mail.interface";
 
 @Service()
 export class UserService {
   // 생성자 주입을 통해 UserDao 의존성 주입
   constructor(
     private readonly userDao : UserDao,
+    @Inject(() => MailService)
     private readonly mailService: MailServiceInterface,
   ) {}
 
@@ -215,8 +216,6 @@ export class UserService {
    */
   public async reissueAccessToken (authUser: AuthUser, refreshToken: string, clientIp: string | undefined): Promise<Result> {
     const result: Result = { success: false, data: null };
-
-    console.log("authUser", authUser);
 
     // redis에서 refreshToken 조회
     const getRefreshToken = await getDataToRedis(RedisStoreKeyActionEnum.REFRESH, authUser.userId);

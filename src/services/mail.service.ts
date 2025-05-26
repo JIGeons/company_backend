@@ -51,12 +51,12 @@ export class MailService implements MailServiceInterface {
 
       result.success = true;
       result.data = sendMailResult;
-      return result;
     } catch (error) {
       console.error("!-- 매일 전송 실패: ", error);
       result.error = error instanceof Error ? error.message : String(error);
-      return result;
     }
+
+    return result;
   }
 
   /**
@@ -66,7 +66,6 @@ export class MailService implements MailServiceInterface {
    */
   public async sendAbnormalAccessVerificationEmail(userInfo: User, clientIp: string | undefined): Promise<Result> {
     const result: Result = { success: false, data: null };
-
     // 인증코드 생성 (기본 8자리)
     const verificationCode = generateVerificationCode();
     const verificationUrl = `${SERVER_URI}/api/auth/verify?userId=${userInfo.userId}&code=${encodeURIComponent(verificationCode)}`;
@@ -93,6 +92,7 @@ export class MailService implements MailServiceInterface {
     if (!sendMailResult.success) {
       console.error('메일 전송 실패: ', sendMailResult.error);
       result.error = sendMailResult.error;
+      return result;
     }
 
     result.success = true;
